@@ -1,0 +1,33 @@
+{
+  "name": "andkom/php-bitcoin-blockchain",
+  "description": "A simple PHP library for reading Bitcoin blockchain database.",
+  "type": "library",
+  "keywords": [
+    "bitcoin",
+    "blockchain",
+    "database"
+  ],
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Andrei Komarov"
+    }
+  ],
+  "require": {
+    "php": "^7.1",
+    "andkom/bcdatastream": "^1.0"
+  },
+  "require-dev": {
+    "phpunit/phpunit": ">=5.0"
+  },
+  "autoload": {
+    "psr-4": {
+      "AndKom\\PhpBitcoinBlockchain\\": "src/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "AndKom\\PhpBitcoinBlockchain\\Tests\\": "tests/"
+    }
+  }
+}

@@ -79,7 +79,7 @@ class Script
                 $operations[] = $opcode - Opcodes::OP_1 + 1;
             } else {
                 if ($readable) {
-                    $operations[] = Opcodes::$names[$opcode];
+                    $operations[] = str_replace('OP_', '', Opcodes::$names[$opcode]);
                 } else {
                     $operations[] = $opcode;
                 }

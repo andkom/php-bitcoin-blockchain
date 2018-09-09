@@ -34,6 +34,11 @@ class Input
     public $sequenceNo;
 
     /**
+     * @var array
+     */
+    public $witnesses = [];
+
+    /**
      * @param Reader $stream
      * @return Input
      */

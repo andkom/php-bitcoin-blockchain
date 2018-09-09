@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace AndKom\PhpBitcoinBlockchain;
 
+use AndKom\PhpBitcoinBlockchain\Network\Bitcoin;
+use function BitWasp\Bech32\encodeSegwit;
+
 /**
  * Class ScriptPubKey
  * @package AndKom\PhpBitcoinBlockchain
@@ -75,26 +78,61 @@ class ScriptPubKey extends Script
     }
 
     /**
-     * @return string
-     * @throws Exception
+     * @return bool
      */
-    public function getOutputAddress(): string
+    public function isP2WPKH(): bool
     {
         $operations = $this->parse();
 
+        return (count($operations) == 2) &&
+            ord($operations[0]->data) == 0 &&
+            $operations[1]->size == 20;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isP2WSH(): bool
+    {
+        $operations = $this->parse();
+
+        return (count($operations) == 2) &&
+            ord($operations[0]->data) == 0 &&
+            $operations[1]->size == 32;
+    }
+
+    /**
+     * @param Bitcoin|null $network
+     * @return string
+     * @throws Exception
+     * @throws \BitWasp\Bech32\Exception\Bech32Exception
+     */
+    public function getOutputAddress(Bitcoin $network = null): string
+    {
+        if (!$network) {
+            $network = new Bitcoin();
+        }
+
+        $operations = $this->parse();
+
         if ($this->isP2PK()) {
-            $pubKey = $operations[0]->data;
-            return Utils::pubKeyToAddress($pubKey, 0x00);
+            return Utils::pubKeyToAddress($operations[0]->data, $network::P2PKH_PREFIX);
         }
 
         if ($this->isP2PKH()) {
-            $pubKeyHash = $operations[2]->data;
-            return Utils::hash160ToAddress($pubKeyHash, 0x00);
+            return Utils::hash160ToAddress($operations[2]->data, $network::P2PKH_PREFIX);
         }
 
         if ($this->isP2SH()) {
-            $hash = $operations[1]->data;
-            return Utils::hash160ToAddress($hash, 0x05);
+            return Utils::hash160ToAddress($operations[1]->data, $network::P2SH_PREFIX);
+        }
+
+        if ($this->isP2WPKH()) {
+            return encodeSegwit($network::BECH32_HRP, $operations[0]->data, $operations[1]->data);
+        }
+
+        if ($this->isP2WSH()) {
+            return encodeSegwit($network::BECH32_HRP, $operations[0]->data, $operations[1]->data);
         }
 
         throw new Exception('Unable to decode output address.');

@@ -21,7 +21,7 @@ class Transaction
     /**
      * @var int
      */
-    public $flag;
+    public $isSegwit = false;
 
     /**
      * @var int
@@ -44,11 +44,6 @@ class Transaction
     public $outputs = [];
 
     /**
-     * @var array
-     */
-    public $witnesses = [];
-
-    /**
      * @var int
      */
     public $lockTime;
@@ -61,6 +56,13 @@ class Transaction
     {
         $tx = new self;
         $tx->version = $stream->readUInt32();
+
+        $tx->isSegwit = $stream->read(2) == "\x00\x01";
+
+        if (!$tx->isSegwit) {
+            $stream->setPosition($stream->getPosition() - 2);
+        }
+
         $tx->inCount = $stream->readVarInt();
 
         for ($i = 0; $i < $tx->inCount; $i++) {
@@ -73,6 +75,15 @@ class Transaction
             $tx->outputs[] = Output::parse($stream);
         }
 
+        if ($tx->isSegwit) {
+            foreach ($tx->inputs as $input) {
+                $count = $stream->readVarInt();
+                for ($i = 0; $i < $count; $i++) {
+                    $input->witnesses[] = $stream->readString();
+                }
+            }
+        }
+
         $tx->lockTime = $stream->readInt32();
 
         return $tx;
@@ -80,11 +91,17 @@ class Transaction
 
     /**
      * @param Writer $stream
+     * @param bool $segWit
      * @return Transaction
      */
-    public function serialize(Writer $stream): self
+    public function serialize(Writer $stream, bool $segWit = true): self
     {
         $stream->writeUInt32($this->version);
+
+        if ($this->isSegwit && $segWit) {
+            $stream->write("\x00\x01");
+        }
+
         $stream->writeVarInt($this->inCount);
 
         foreach ($this->inputs as $in) {
@@ -97,18 +114,29 @@ class Transaction
             $out->serialize($stream);
         }
 
+        if ($this->isSegwit && $segWit) {
+            foreach ($this->inputs as $input) {
+                $stream->writeVarInt(count($input->witnesses));
+
+                foreach ($input->witnesses as $witness) {
+                    $stream->writeString($witness);
+                }
+            }
+        }
+
         $stream->writeInt32($this->lockTime);
 
         return $this;
     }
 
     /**
+     * @param bool $segWit
      * @return string
      */
-    public function getHash(): string
+    public function getHash(bool $segWit = false): string
     {
         $stream = new Writer();
-        $this->serialize($stream);
+        $this->serialize($stream, $segWit);
         $hash = Utils::hash($stream->getBuffer(), true);
         $hash = strrev($hash);
         $hash = bin2hex($hash);

@@ -92,4 +92,30 @@ class ScriptPubKeyTest extends TestCase
 
         $this->assertTrue($script->isMultisig());
     }
+
+    // [segwit ver] [pubkey hash]
+    public function testParseP2WPKH()
+    {
+        $hex = '00'; // segwit version
+        $hex .= '14'; // OP_PUSHDATA
+        $hex .= '536523b38a207338740797cd03c3312e81408d53'; // pubkey hash
+
+        $script = new ScriptPubKey(hex2bin($hex));
+
+        $this->assertTrue($script->isP2WPKH());
+        $this->assertEquals($script->getOutputAddress(), 'bc1q2djj8vu2ypensaq8jlxs8se396q5pr2n3sa2wn');
+    }
+
+    // [segwit ver] [pubkey hash]
+    public function testParseP2WSH()
+    {
+        $hex = '00'; // segwit version
+        $hex .= '20'; // OP_PUSHDATA
+        $hex .= '701a8d401c84fb13e6baf169d59684e17abd9fa216c8cc5b9fc63d622ff8c58d'; // hash
+
+        $script = new ScriptPubKey(hex2bin($hex));
+
+        $this->assertTrue($script->isP2WSH());
+        $this->assertEquals($script->getOutputAddress(), 'bc1qwqdg6squsna38e46795at95yu9atm8azzmyvckulcc7kytlcckxswvvzej');
+    }
 }

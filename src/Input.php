@@ -64,4 +64,12 @@ class Input
         $stream->writeInt32($this->sequenceNo);
         return $this;
     }
+
+    /**
+     * @return bool
+     */
+    public function isCoinbase(): bool
+    {
+        return $this->prevTxHash == '0000000000000000000000000000000000000000000000000000000000000000';
+    }
 }

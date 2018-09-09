@@ -142,18 +142,4 @@ class Transaction
         $hash = bin2hex($hash);
         return $hash;
     }
-
-    /**
-     * @return bool
-     */
-    public function isCoinbase(): bool
-    {
-        foreach ($this->inputs as $input) {
-            if ($input->prevTxHash == '0000000000000000000000000000000000000000000000000000000000000000') {
-                return true;
-            }
-        }
-
-        return false;
-    }
 }

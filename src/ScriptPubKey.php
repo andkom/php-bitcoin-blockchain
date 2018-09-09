@@ -84,8 +84,9 @@ class ScriptPubKey extends Script
     {
         $operations = $this->parse();
 
-        return (count($operations) == 2) &&
-            ord($operations[0]->data) == 0 &&
+        return count($operations) == 2 &&
+            $operations[0]->code >= Opcodes::OP_0 &&
+            $operations[0]->code <= Opcodes::OP_16 &&
             $operations[1]->size == 20;
     }
 
@@ -96,8 +97,9 @@ class ScriptPubKey extends Script
     {
         $operations = $this->parse();
 
-        return (count($operations) == 2) &&
-            ord($operations[0]->data) == 0 &&
+        return count($operations) == 2 &&
+            $operations[0]->code >= Opcodes::OP_0 &&
+            $operations[0]->code <= Opcodes::OP_16 &&
             $operations[1]->size == 32;
     }
 

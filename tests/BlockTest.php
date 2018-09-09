@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace AndKom\PhpBitcoinBlockchain\Tests;
 
 use AndKom\BCDataStream\Reader;
+use AndKom\BCDataStream\Writer;
 use AndKom\PhpBitcoinBlockchain\Block;
 use PHPUnit\Framework\TestCase;
 
@@ -32,13 +33,13 @@ class BlockTest extends TestCase
         $genesis .= "00000000"; // lock time
 
         $block = Block::parse(new Reader(hex2bin($genesis)));
-        $this->assertEquals($block->getHash(), '000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f');
-        $this->assertEquals($block->version, 1);
-        $this->assertEquals($block->prevBlockHash, '0000000000000000000000000000000000000000000000000000000000000000');
-        $this->assertEquals($block->merkleRootHash, '4a5e1e4baab89f3a32518a88c31bc87f618f76673e2cc77ab2127b7afdeda33b');
-        $this->assertEquals($block->time, 1231006505);
-        $this->assertEquals($block->bits, 486604799);
-        $this->assertEquals($block->nonce, 2083236893);
+        $this->assertEquals($block->header->getHash(), '000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f');
+        $this->assertEquals($block->header->version, 1);
+        $this->assertEquals($block->header->prevBlockHash, '0000000000000000000000000000000000000000000000000000000000000000');
+        $this->assertEquals($block->header->merkleRootHash, '4a5e1e4baab89f3a32518a88c31bc87f618f76673e2cc77ab2127b7afdeda33b');
+        $this->assertEquals($block->header->time, 1231006505);
+        $this->assertEquals($block->header->bits, 486604799);
+        $this->assertEquals($block->header->nonce, 2083236893);
         $this->assertEquals($block->transactions[0]->getHash(), '4a5e1e4baab89f3a32518a88c31bc87f618f76673e2cc77ab2127b7afdeda33b');
         $this->assertEquals($block->transactions[0]->version, 1);
         $this->assertEquals($block->transactions[0]->inCount, 1);
@@ -50,5 +51,10 @@ class BlockTest extends TestCase
         $this->assertEquals($block->transactions[0]->outputs[0]->scriptPubKey->getData(), hex2bin('4104678afdb0fe5548271967f1a67130b7105cd6a828e03909a67962e0ea1f61deb649f6bc3f4cef38c4f35504e51ec112de5c384df7ba0b8d578a4c702b6bf11d5fac'));
         $this->assertEquals($block->transactions[0]->lockTime, 0);
         $this->assertTrue($block->transactions[0]->isCoinbase());
+
+        $stream = new Writer();
+        $block->serialize($stream);
+
+        $this->assertEquals($stream->getBuffer(), hex2bin($genesis));
     }
 }

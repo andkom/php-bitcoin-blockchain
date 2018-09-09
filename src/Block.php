@@ -14,34 +14,9 @@ use AndKom\BCDataStream\Writer;
 class Block
 {
     /**
-     * @var int
+     * @var Header
      */
-    public $version;
-
-    /**
-     * @var string
-     */
-    public $prevBlockHash;
-
-    /**
-     * @var string
-     */
-    public $merkleRootHash;
-
-    /**
-     * @var int
-     */
-    public $time;
-
-    /**
-     * @var int
-     */
-    public $bits;
-
-    /**
-     * @var int
-     */
-    public $nonce;
+    public $header;
 
     /**
      * @var int
@@ -60,12 +35,7 @@ class Block
     static public function parse(Reader $stream): self
     {
         $block = new self;
-        $block->version = $stream->readUInt32();
-        $block->prevBlockHash = bin2hex(strrev($stream->read(32)));
-        $block->merkleRootHash = bin2hex(strrev($stream->read(32)));
-        $block->time = $stream->readUInt32();
-        $block->bits = $stream->readUInt32();
-        $block->nonce = $stream->readUInt32();
+        $block->header = Header::parse($stream);
         $block->transactionsCount = $stream->readVarInt();
 
         for ($i = 0; $i < $block->transactionsCount; $i++) {
@@ -81,25 +51,13 @@ class Block
      */
     public function serialize(Writer $stream): self
     {
-        $stream->writeUInt32($this->version);
-        $stream->write(strrev(hex2bin($this->prevBlockHash)));
-        $stream->write(strrev(hex2bin($this->merkleRootHash)));
-        $stream->writeUInt32($this->time);
-        $stream->writeUInt32($this->bits);
-        $stream->writeUInt32($this->nonce);
-        return $this;
-    }
+        $this->header->serialize($stream);
+        $stream->writeVarInt(count($this->transactions));
 
-    /**
-     * @return string
-     */
-    public function getHash(): string
-    {
-        $stream = new Writer();
-        $this->serialize($stream);
-        $hash = Utils::hash($stream->getBuffer(), true);
-        $hash = strrev($hash);
-        $hash = bin2hex($hash);
-        return $hash;
+        foreach ($this->transactions as $transaction) {
+            $transaction->serialize($stream);
+        }
+
+        return $this;
     }
 }

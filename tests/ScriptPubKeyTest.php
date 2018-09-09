@@ -9,6 +9,16 @@ use PHPUnit\Framework\TestCase;
 
 class ScriptPubKeyTest extends TestCase
 {
+    // OP_RETURN ...
+    public function testReturn()
+    {
+        $hex = '6a';
+
+        $script = new ScriptPubKey(hex2bin($hex));
+
+        $this->assertTrue($script->isReturn());
+    }
+
     // [pubkey] OP_CHECKSIG
     public function testParseP2PK()
     {
@@ -63,5 +73,23 @@ class ScriptPubKeyTest extends TestCase
 
         $this->assertTrue($script->isP2SH());
         $this->assertEquals($script->getOutputAddress(), '3EyPVdtVrtMJ1XwPT9oiBrQysGpRY8LE9K');
+    }
+
+    // [numsigs] [...pubkeys...] [numpubkeys] OP_CHECKMULTISIG
+    public function testParseMultisig()
+    {
+        $hex = '52'; // OP_2
+        $hex .= '14'; // OP_PUSHDATA
+        $hex .= '91b24bf9f5288532960ac687abb035127b1d28a5'; // pubkey hash
+        $hex .= '14'; // OP_PUSHDATA
+        $hex .= 'd6c8e828c1eca1bba065e1b83e1dc2a36e387a42'; // pubkey hash
+        $hex .= '14'; // OP_PUSHDATA
+        $hex .= 'ec7eced2c57ed1292bc4eb9bfd13c9f7603bc338'; // pubkey hash
+        $hex .= '53'; // OP_3
+        $hex .= 'ae'; // OP_CHECKMULTISIG
+
+        $script = new ScriptPubKey(hex2bin($hex));
+
+        $this->assertTrue($script->isMultisig());
     }
 }

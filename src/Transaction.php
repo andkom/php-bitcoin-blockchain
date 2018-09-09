@@ -64,13 +64,13 @@ class Transaction
         $tx->inCount = $stream->readVarInt();
 
         for ($i = 0; $i < $tx->inCount; $i++) {
-            $tx->inputs[] = TransactionInput::parse($stream);
+            $tx->inputs[] = Input::parse($stream);
         }
 
         $tx->outCount = $stream->readVarInt();
 
         for ($i = 0; $i < $tx->outCount; $i++) {
-            $tx->outputs[] = TransactionOutput::parse($stream);
+            $tx->outputs[] = Output::parse($stream);
         }
 
         $tx->lockTime = $stream->readInt32();
@@ -113,5 +113,19 @@ class Transaction
         $hash = strrev($hash);
         $hash = bin2hex($hash);
         return $hash;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isCoinbase(): bool
+    {
+        foreach ($this->inputs as $input) {
+            if ($input->prevTxHash == '0000000000000000000000000000000000000000000000000000000000000000') {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

@@ -11,7 +11,7 @@ use AndKom\BCDataStream\Writer;
  * Class TransactionOutput
  * @package AndKom\PhpBitcoinBlockchain
  */
-class TransactionOutput
+class Output
 {
     /**
      * @var int
@@ -25,7 +25,7 @@ class TransactionOutput
 
     /**
      * @param Reader $stream
-     * @return TransactionOutput
+     * @return Output
      */
     static public function parse(Reader $stream): self
     {
@@ -37,7 +37,7 @@ class TransactionOutput
 
     /**
      * @param Writer $stream
-     * @return TransactionOutput
+     * @return Output
      */
     public function serialize(Writer $stream): self
     {

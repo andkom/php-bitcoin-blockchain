@@ -13,6 +13,17 @@ class ScriptPubKey extends Script
     /**
      * @return bool
      */
+    public function isReturn(): bool
+    {
+        $operations = $this->parse();
+
+        return count($operations) >= 1 &&
+            $operations[0]->code == Opcodes::OP_RETURN;
+    }
+
+    /**
+     * @return bool
+     */
     public function isP2PK(): bool
     {
         $operations = $this->parse();
@@ -48,6 +59,19 @@ class ScriptPubKey extends Script
             $operations[0]->code == Opcodes::OP_HASH160 &&
             $operations[1]->size == 20 &&
             $operations[2]->code == Opcodes::OP_EQUAL;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isMultisig(): bool
+    {
+        $operations = $this->parse();
+
+        return ($count = count($operations)) >= 4 &&
+            ord($operations[0]->data) >= 1 &&
+            ord($operations[$count - 2]->data) >= 1 &&
+            $operations[$count - 1]->code == Opcodes::OP_CHECKMULTISIG;
     }
 
     /**

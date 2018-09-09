@@ -26,7 +26,7 @@ class TransactionInput
     /**
      * @var Script
      */
-    public $script;
+    public $scriptSig;
 
     /**
      * @var int
@@ -42,7 +42,7 @@ class TransactionInput
         $in = new self;
         $in->prevTxHash = bin2hex(strrev($stream->read(32)));
         $in->prevTxOutIndex = $stream->readInt32();
-        $in->script = new Script($stream->readString());
+        $in->scriptSig = new ScriptSig($stream->readString());
         $in->sequenceNo = $stream->readInt32();
         return $in;
     }
@@ -55,7 +55,7 @@ class TransactionInput
     {
         $stream->write(strrev(hex2bin($this->prevTxHash)));
         $stream->writeUInt32($this->prevTxOutIndex);
-        $stream->writeString($this->script->getData());
+        $stream->writeString($this->scriptSig->getData());
         $stream->writeInt32($this->sequenceNo);
         return $this;
     }

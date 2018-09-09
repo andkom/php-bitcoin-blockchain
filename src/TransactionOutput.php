@@ -21,7 +21,7 @@ class TransactionOutput
     /**
      * @var Script
      */
-    public $script;
+    public $scriptPubKey;
 
     /**
      * @param Reader $stream
@@ -31,7 +31,7 @@ class TransactionOutput
     {
         $out = new self;
         $out->value = $stream->readUInt64();
-        $out->script = new Script($stream->readString());
+        $out->scriptPubKey = new ScriptPubKey($stream->readString());
         return $out;
     }
 
@@ -42,7 +42,7 @@ class TransactionOutput
     public function serialize(Writer $stream): self
     {
         $stream->writeUInt64($this->value);
-        $stream->writeString($this->script->getData());
+        $stream->writeString($this->scriptPubKey->getData());
         return $this;
     }
 }

@@ -34,6 +34,14 @@ class Script
     /**
      * @return string
      */
+    public function __toString()
+    {
+        return $this->getHumanReadable();
+    }
+
+    /**
+     * @return string
+     */
     public function getData(): string
     {
         return $this->data;
@@ -95,58 +103,5 @@ class Script
     public function getHumanReadable(): string
     {
         return implode(' ', $this->parse());
-    }
-
-    /**
-     * @return bool
-     */
-    public function isP2PK(): bool
-    {
-        $operations = $this->parse();
-
-        return count($operations) == 2 &&
-            $operations[0]->size == 65 &&
-            $operations[1]->code == Opcodes::OP_CHECKSIG;
-    }
-
-    /**
-     * @return bool
-     */
-    public function isP2PKH(): bool
-    {
-        $operations = $this->parse();
-
-        return count($operations) == 5 &&
-            $operations[0]->code == Opcodes::OP_DUP &&
-            $operations[1]->code == Opcodes::OP_HASH160 &&
-            $operations[2]->size == 20 &&
-            $operations[3]->code == Opcodes::OP_EQUALVERIFY &&
-            $operations[4]->code == Opcodes::OP_CHECKSIG;
-    }
-
-    /**
-     * @return bool
-     */
-    public function isP2SH(): bool
-    {
-        $operations = $this->parse();
-
-        return count($operations) == 3 &&
-            $operations[0]->code == Opcodes::OP_HASH160 &&
-            $operations[1]->size == 20 &&
-            $operations[2]->code == Opcodes::OP_EQUAL;
-    }
-
-    /**
-     * @return bool
-     */
-    public function isMultisig(): bool
-    {
-        $operations = $this->parse();
-
-        return ($count = count($operations)) >= 4 &&
-            ord($operations[0]->data) >= 1 &&
-            ord($operations[$count - 2]->data) >= 1 &&
-            $operations[$count - 1]->code == Opcodes::OP_CHECKMULTISIG;
     }
 }

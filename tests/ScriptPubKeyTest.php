@@ -28,7 +28,7 @@ class ScriptPubKeyTest extends TestCase
 
         $script = new ScriptPubKey(hex2bin($hex));
 
-        $this->assertTrue($script->isP2PK());
+        $this->assertTrue($script->isPayToPubKey());
         $this->assertEquals($script->getOutputAddress(), '1EHNa6Q4Jz2uvNExL497mE43ikXhwF6kZm');
     }
 
@@ -41,7 +41,7 @@ class ScriptPubKeyTest extends TestCase
 
         $script = new ScriptPubKey(hex2bin($hex));
 
-        $this->assertTrue($script->isP2PK());
+        $this->assertTrue($script->isPayToPubKey());
         $this->assertEquals($script->getOutputAddress(), '1BgGZ9tcN4rm9KBzDn7KprQz87SZ26SAMH');
     }
 
@@ -57,7 +57,7 @@ class ScriptPubKeyTest extends TestCase
 
         $script = new ScriptPubKey(hex2bin($hex));
 
-        $this->assertTrue($script->isP2PKH());
+        $this->assertTrue($script->isPayToPubKeyHash());
         $this->assertEquals($script->getOutputAddress(), '1EHNa6Q4Jz2uvNExL497mE43ikXhwF6kZm');
     }
 
@@ -71,7 +71,7 @@ class ScriptPubKeyTest extends TestCase
 
         $script = new ScriptPubKey(hex2bin($hex));
 
-        $this->assertTrue($script->isP2SH());
+        $this->assertTrue($script->isPayToScriptHash());
         $this->assertEquals($script->getOutputAddress(), '3EyPVdtVrtMJ1XwPT9oiBrQysGpRY8LE9K');
     }
 
@@ -102,7 +102,7 @@ class ScriptPubKeyTest extends TestCase
 
         $script = new ScriptPubKey(hex2bin($hex));
 
-        $this->assertTrue($script->isP2WPKH());
+        $this->assertTrue($script->isPayToWitnessPubKeyHash());
         $this->assertEquals($script->getOutputAddress(), 'bc1q2djj8vu2ypensaq8jlxs8se396q5pr2n3sa2wn');
     }
 
@@ -115,7 +115,7 @@ class ScriptPubKeyTest extends TestCase
 
         $script = new ScriptPubKey(hex2bin($hex));
 
-        $this->assertTrue($script->isP2WSH());
+        $this->assertTrue($script->isPayToWitnessScriptHash());
         $this->assertEquals($script->getOutputAddress(), 'bc1qwqdg6squsna38e46795at95yu9atm8azzmyvckulcc7kytlcckxswvvzej');
     }
 }

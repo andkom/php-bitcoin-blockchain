@@ -27,7 +27,7 @@ class ScriptPubKey extends Script
     /**
      * @return bool
      */
-    public function isP2PK(): bool
+    public function isPayToPubKey(): bool
     {
         $operations = $this->parse();
 
@@ -39,7 +39,7 @@ class ScriptPubKey extends Script
     /**
      * @return bool
      */
-    public function isP2PKH(): bool
+    public function isPayToPubKeyHash(): bool
     {
         $operations = $this->parse();
 
@@ -54,7 +54,7 @@ class ScriptPubKey extends Script
     /**
      * @return bool
      */
-    public function isP2SH(): bool
+    public function isPayToScriptHash(): bool
     {
         $operations = $this->parse();
 
@@ -80,7 +80,7 @@ class ScriptPubKey extends Script
     /**
      * @return bool
      */
-    public function isP2WPKH(): bool
+    public function isPayToWitnessPubKeyHash(): bool
     {
         $operations = $this->parse();
 
@@ -92,7 +92,7 @@ class ScriptPubKey extends Script
     /**
      * @return bool
      */
-    public function isP2WSH(): bool
+    public function isPayToWitnessScriptHash(): bool
     {
         $operations = $this->parse();
 
@@ -115,23 +115,23 @@ class ScriptPubKey extends Script
 
         $operations = $this->parse();
 
-        if ($this->isP2PK()) {
+        if ($this->isPayToPubKey()) {
             return Utils::pubKeyToAddress($operations[0]->data, $network::P2PKH_PREFIX);
         }
 
-        if ($this->isP2PKH()) {
+        if ($this->isPayToPubKeyHash()) {
             return Utils::hash160ToAddress($operations[2]->data, $network::P2PKH_PREFIX);
         }
 
-        if ($this->isP2SH()) {
+        if ($this->isPayToScriptHash()) {
             return Utils::hash160ToAddress($operations[1]->data, $network::P2SH_PREFIX);
         }
 
-        if ($this->isP2WPKH()) {
+        if ($this->isPayToWitnessPubKeyHash()) {
             return encodeSegwit($network::BECH32_HRP, $operations[0]->data, $operations[1]->data);
         }
 
-        if ($this->isP2WSH()) {
+        if ($this->isPayToWitnessScriptHash()) {
             return encodeSegwit($network::BECH32_HRP, $operations[0]->data, $operations[1]->data);
         }
 

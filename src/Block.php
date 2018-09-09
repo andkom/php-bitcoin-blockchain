@@ -97,8 +97,7 @@ class Block
     {
         $stream = new Writer();
         $this->serialize($stream);
-        $hash = hash('sha256', $stream->getBuffer(), true);
-        $hash = hash('sha256', $hash, true);
+        $hash = Utils::hash($stream->getBuffer(), true);
         $hash = strrev($hash);
         $hash = bin2hex($hash);
         return $hash;

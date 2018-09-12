@@ -63,13 +63,13 @@ class Transaction
             $stream->setPosition($stream->getPosition() - 2);
         }
 
-        $tx->inCount = $stream->readVarInt();
+        $tx->inCount = $stream->readCompactSize();
 
         for ($i = 0; $i < $tx->inCount; $i++) {
             $tx->inputs[] = Input::parse($stream);
         }
 
-        $tx->outCount = $stream->readVarInt();
+        $tx->outCount = $stream->readCompactSize();
 
         for ($i = 0; $i < $tx->outCount; $i++) {
             $tx->outputs[] = Output::parse($stream);
@@ -77,7 +77,7 @@ class Transaction
 
         if ($tx->isSegwit) {
             foreach ($tx->inputs as $input) {
-                $count = $stream->readVarInt();
+                $count = $stream->readCompactSize();
                 for ($i = 0; $i < $count; $i++) {
                     $input->witnesses[] = $stream->readString();
                 }

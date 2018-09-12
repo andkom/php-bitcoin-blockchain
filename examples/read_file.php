@@ -2,16 +2,13 @@
 
 include '../vendor/autoload.php';
 
-$blockDir = getenv('HOME') . '/Library/Application Support/Bitcoin/blocks';
+$dataDir = getenv('HOME') . '/Library/Application Support/Bitcoin';
+$blocksDir = "$dataDir/blocks";
+$blockFile = "$blocksDir/blk00001.dat";
 
 $reader = new \AndKom\PhpBitcoinBlockchain\BlockFileReader();
 
-foreach ($reader->read($blockDir . '/blk00000.dat') as $block) {
-
-    echo str_repeat('=', 71) . "\n";
-    echo "Block: " . $block->header->getHash() . "\n";
-    echo "Date: " . date('r', $block->header->time) . "\n";
-
+foreach ($reader->read($blockFile) as $block) {
     foreach ($block->transactions as $tx) {
         echo "\nTX: " . $tx->getHash() . "\n";
 

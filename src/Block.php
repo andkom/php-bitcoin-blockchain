@@ -36,7 +36,7 @@ class Block
     {
         $block = new self;
         $block->header = Header::parse($stream);
-        $block->transactionsCount = $stream->readVarInt();
+        $block->transactionsCount = $stream->readCompactSize();
 
         for ($i = 0; $i < $block->transactionsCount; $i++) {
             $block->transactions[] = Transaction::parse($stream);
@@ -52,7 +52,7 @@ class Block
     public function serialize(Writer $stream): self
     {
         $this->header->serialize($stream);
-        $stream->writeVarInt(count($this->transactions));
+        $stream->writeCompactSize(count($this->transactions));
 
         foreach ($this->transactions as $transaction) {
             $transaction->serialize($stream);

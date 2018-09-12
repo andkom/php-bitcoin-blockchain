@@ -12,6 +12,8 @@ use AndKom\BCDataStream\Reader;
  */
 class BlockFileReader
 {
+    const MAGIC = "\xf9\xbe\xb4\xd9";
+
     /**
      * @param string $file
      * @return \Generator
@@ -22,38 +24,41 @@ class BlockFileReader
         $fp = fopen($file, 'r');
 
         if (!$fp) {
-            throw new Exception("Unable to open file $file for reading.");
+            throw new Exception("Unable to open block file '$file' for reading.");
         }
 
-        while (true) {
-            $magic = fread($fp, 4);
-
-            if (!$magic) {
-                break;
-            }
-
-            if ($magic != "\xf9\xbe\xb4\xd9") {
-                throw new Exception('Invalid magic number.');
-            }
-
-            $size = fread($fp, 4);
-
-            if ($size === false) {
-                throw new Exception('Unable to read block size.');
-            }
-
-            $length = unpack('V', $size)[1];
-            $data = fread($fp, $length);
-
-            if ($data === false) {
-                throw new Exception('Unable to read block data.');
-            }
-
-            $stream = new Reader($data);
-
-            yield Block::parse($stream);
+        while (fread($fp, 4) == static::MAGIC) {
+            yield $this->readBlock($fp);
         }
 
         fclose($fp);
+    }
+
+    /**
+     * @param resource $fp
+     * @return Block
+     * @throws Exception
+     */
+    public function readBlock($fp): Block
+    {
+        if (!is_resource($fp)) {
+            throw new Exception('Invalid file resource.');
+        }
+
+        $size = fread($fp, 4);
+
+        if ($size === false) {
+            throw new Exception('Unable to read block size.');
+        }
+
+        $length = unpack('V', $size)[1];
+
+        $data = fread($fp, $length);
+
+        if ($data === false) {
+            throw new Exception('Unable to read block data.');
+        }
+
+        return Block::parse(new Reader($data));
     }
 }

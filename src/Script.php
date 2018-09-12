@@ -81,7 +81,7 @@ class Script
                 $data = $stream->read($code);
                 $size = $code;
             } elseif ($code >= Opcodes::OP_PUSHDATA1 && $code <= Opcodes::OP_PUSHDATA4) {
-                $size = $stream->readVarInt();
+                $size = $stream->readCompactSize();
                 $data = $stream->read($size);
             } elseif ($code == Opcodes::OP_1NEGATE) {
                 $data = chr(-1);

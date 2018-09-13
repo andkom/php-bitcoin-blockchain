@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace AndKom\PhpBitcoinBlockchain;
 
 use AndKom\PhpBitcoinBlockchain\Network\Bitcoin;
-use function BitWasp\Bech32\encodeSegwit;
 
 /**
  * Class ScriptPubKey
@@ -72,8 +71,8 @@ class ScriptPubKey extends Script
         $operations = $this->parse();
 
         return ($count = count($operations)) >= 4 &&
-            ord($operations[0]->data) >= 1 &&
-            ord($operations[$count - 2]->data) >= 1 &&
+            $operations[0]->code >= Opcodes::OP_1 &&
+            $operations[$count - 2]->code >= Opcodes::OP_1 &&
             $operations[$count - 1]->code == Opcodes::OP_CHECKMULTISIG;
     }
 
@@ -107,34 +106,45 @@ class ScriptPubKey extends Script
      * @param Bitcoin|null $network
      * @return string
      * @throws Exception
+     * @throws \Exception
      * @throws \BitWasp\Bech32\Exception\Bech32Exception
      */
     public function getOutputAddress(Bitcoin $network = null): string
     {
-        if (!$network) {
-            $network = new Bitcoin();
+        try {
+            $operations = $this->parse();
+        } catch (\Exception $exception) {
+            throw new Exception('Unable to decode output address (script parse error).');
         }
 
-        $operations = $this->parse();
+        $addressSerializer = new AddressSerializer($network);
 
         if ($this->isPayToPubKey()) {
-            return Utils::pubKeyToAddress($operations[0]->data, $network::P2PKH_PREFIX);
+            return $addressSerializer->getPayToPubKeyAddress($operations[0]->data);
         }
 
         if ($this->isPayToPubKeyHash()) {
-            return Utils::hash160ToAddress($operations[2]->data, $network::P2PKH_PREFIX);
+            return $addressSerializer->getPayToPubKeyHashAddress($operations[2]->data);
         }
 
         if ($this->isPayToScriptHash()) {
-            return Utils::hash160ToAddress($operations[1]->data, $network::P2SH_PREFIX);
+            return $addressSerializer->getPayToScriptHash($operations[1]->data);
         }
 
         if ($this->isPayToWitnessPubKeyHash()) {
-            return encodeSegwit($network::BECH32_HRP, $operations[0]->data, $operations[1]->data);
+            return $addressSerializer->getPayToWitnessPubKeyHash($operations[1]->data);
         }
 
         if ($this->isPayToWitnessScriptHash()) {
-            return encodeSegwit($network::BECH32_HRP, $operations[0]->data, $operations[1]->data);
+            return $addressSerializer->getPayToWitnessScriptHash($operations[1]->data);
+        }
+
+        if ($this->isMultisig()) {
+            throw new Exception('Unable to decode output address (multisig).');
+        }
+
+        if ($this->isReturn()) {
+            throw new Exception('Unable to decode output address (OP_RETURN).');
         }
 
         throw new Exception('Unable to decode output address.');

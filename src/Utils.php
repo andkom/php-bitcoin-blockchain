@@ -38,7 +38,7 @@ class Utils
      * @return string
      * @throws \Exception
      */
-    static public function hash160ToAddress(string $hash160, int $network = 0x00): string
+    static public function hash160ToAddress(string $hash160, int $network): string
     {
         $hash160 = chr($network) . $hash160;
         $checksum = substr(static::hash($hash160, true), 0, 4);
@@ -52,8 +52,26 @@ class Utils
      * @return string
      * @throws \Exception
      */
-    public static function pubKeyToAddress(string $pubKey, int $network = 0x00): string
+    static public function pubKeyToAddress(string $pubKey, int $network): string
     {
         return static::hash160ToAddress(static::hash160($pubKey, true), $network);
+    }
+
+    /**
+     * @param string $key
+     * @param string $value
+     * @return string
+     */
+    static public function xor(string $key, string $value): string
+    {
+        $valueLen = strlen($value);
+        $keyLen = strlen($key);
+        $output = $value;
+
+        for ($i = 0; $i < $valueLen; $i++) {
+            $output[$i] = $value[$i] ^ $key[$i % $keyLen];
+        }
+
+        return $output;
     }
 }

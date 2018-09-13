@@ -63,6 +63,14 @@ class BlockchainReader
     }
 
     /**
+     * @return ChainStateReader
+     */
+    public function getChainState(): ChainStateReader
+    {
+        return new ChainStateReader($this->chainStateDir);
+    }
+
+    /**
      * @param int|null $minHeight
      * @param int|null $maxHeight
      * @return \Generator

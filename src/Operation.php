@@ -43,7 +43,11 @@ class Operation
      */
     public function __toString(): string
     {
-        return $this->getHumanReadable();
+        try {
+            return $this->getHumanReadable();
+        } catch (\Exception $exception) {
+            return 'Script parse error.';
+        }
     }
 
     /**

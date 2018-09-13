@@ -34,6 +34,14 @@ class Script
     /**
      * @return string
      */
+    public function __toString()
+    {
+        return $this->getHumanReadable();
+    }
+
+    /**
+     * @return string
+     */
     public function getData(): string
     {
         return $this->data;

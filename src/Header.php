@@ -51,8 +51,8 @@ class Header
     {
         $header = new self;
         $header->version = $stream->readUInt32();
-        $header->prevBlockHash = bin2hex(strrev($stream->read(32)));
-        $header->merkleRootHash = bin2hex(strrev($stream->read(32)));
+        $header->prevBlockHash = $stream->read(32);
+        $header->merkleRootHash = $stream->read(32);
         $header->time = $stream->readUInt32();
         $header->bits = $stream->readUInt32();
         $header->nonce = $stream->readUInt32();
@@ -66,8 +66,8 @@ class Header
     public function serialize(Writer $stream): self
     {
         $stream->writeUInt32($this->version);
-        $stream->write(strrev(hex2bin($this->prevBlockHash)));
-        $stream->write(strrev(hex2bin($this->merkleRootHash)));
+        $stream->write($this->prevBlockHash);
+        $stream->write($this->merkleRootHash);
         $stream->writeUInt32($this->time);
         $stream->writeUInt32($this->bits);
         $stream->writeUInt32($this->nonce);
@@ -81,9 +81,6 @@ class Header
     {
         $stream = new Writer();
         $this->serialize($stream);
-        $hash = Utils::hash($stream->getBuffer(), true);
-        $hash = strrev($hash);
-        $hash = bin2hex($hash);
-        return $hash;
+        return Utils::hash($stream->getBuffer(), true);
     }
 }

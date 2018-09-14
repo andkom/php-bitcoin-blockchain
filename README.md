@@ -2,10 +2,10 @@
 
 A PHP implementation of Bitcoin blockchain database parser.
 
-Features:
+### Features:
 
 - Parse unordered block data
-- Parse orderered block data
+- Parse ordered block data
 - Parse block index
 - Parse chain state (UTXO database)
 
@@ -38,6 +38,15 @@ foreach ($blockchainReader->readBlocksUnordered() as $block) {
 // read UTXO 
 foreach ($blockchainReader->getChainState()->read() as $utxo) {
 }
+
+// get block by hash
+$block = $blockchainReader->getBlockByHash('binary hash in little endian'); 
+
+// get block by height
+$block = $blockchainReader->getBlockByHash(12345);
+
+// get best block hash
+$hash = $blockchainReader->getChainState()->getBestBlock();
 ```
 
 See more examples in the examples dir.
@@ -47,15 +56,15 @@ See more examples in the examples dir.
 Ubuntu/Debian:
 
 ```bash
-# apt-get install libleveldb-dev
-# pecl install leveldb-0.2.1
+apt-get install libleveldb-dev
+pecl install leveldb-0.2.1
 ```
 
 Mac OS:
 
 ```bash
-# brew install leveldb
-# pecl install leveldb-0.2.1
+brew install leveldb
+pecl install leveldb-0.2.1
 ```
 
 Or compile from source:

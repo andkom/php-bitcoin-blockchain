@@ -10,13 +10,13 @@ $reader = new \AndKom\PhpBitcoinBlockchain\BlockFileReader();
 
 foreach ($reader->read($blockFile) as $block) {
     foreach ($block->transactions as $tx) {
-        echo "\nTX: " . $tx->getHash() . "\n";
+        echo "\nTX: " . \AndKom\PhpBitcoinBlockchain\Utils::hashToHex($tx->getHash()) . "\n";
 
         foreach ($tx->inputs as $in) {
             if ($in->isCoinbase()) {
                 echo "IN: Coinbase\n";
             } else {
-                echo "IN: " . $in->prevTxHash . ':' . $in->prevTxOutIndex . "\n";
+                echo "IN: " . \AndKom\PhpBitcoinBlockchain\Utils::hashToHex($in->prevTxHash) . ':' . $in->prevTxOutIndex . "\n";
             }
         }
 

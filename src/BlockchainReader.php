@@ -71,6 +71,38 @@ class BlockchainReader
     }
 
     /**
+     * @param BlockInfo $blockInfo
+     * @return Block
+     * @throws Exception
+     */
+    public function getBlockByInfo(BlockInfo $blockInfo): Block
+    {
+        $blockFile = $this->blocksDir . DIRECTORY_SEPARATOR . $blockInfo->getFileName();
+
+        return (new BlockFileReader())->readBlock($blockFile, $blockInfo->dataPos);
+    }
+
+    /**
+     * @param string $hash
+     * @return Block
+     * @throws Exception
+     */
+    public function getBlockByHash(string $hash): Block
+    {
+        return $this->getBlockByInfo($this->getIndex()->getBlockInfoByHash($hash));
+    }
+
+    /**
+     * @param int $height
+     * @return Block
+     * @throws Exception
+     */
+    public function getBlockByHeight(int $height): Block
+    {
+        return $this->getBlockByInfo($this->getIndex()->getBlockInfoByHeight($height));
+    }
+
+    /**
      * @param int|null $minHeight
      * @param int|null $maxHeight
      * @return \Generator
@@ -79,11 +111,9 @@ class BlockchainReader
     public function readBlocks(int $minHeight = null, int $maxHeight = null): \Generator
     {
         $index = $this->getIndex();
+
         $minHeight = $minHeight ?? $index->getMinHeight();
         $maxHeight = $maxHeight ?? $index->getMaxHeight();
-        $reader = new BlockFileReader();
-
-        $handles = [];
 
         for ($i = $minHeight; $i <= $maxHeight; $i++) {
             $blockInfo = $index->getBlockInfoByHeight($i);
@@ -92,27 +122,7 @@ class BlockchainReader
                 continue;
             }
 
-            $file = $blockInfo->getFileName();
-
-            if (isset($handles[$file])) {
-                $fp = $handles[$file];
-            } else {
-                $path = $this->blocksDir . DIRECTORY_SEPARATOR . $file;
-
-                if (!is_readable($path)) {
-                    throw new Exception("Block file '$file' not found.");
-                }
-
-                $fp = $handles[$file] = fopen($path, 'r');
-            }
-
-            fseek($fp, $blockInfo->dataPos - 4);
-
-            yield $i => $reader->readBlock($fp);
-        }
-
-        foreach ($handles as $file => $fp) {
-            fclose($fp);
+            yield $i => $this->getBlockByInfo($blockInfo);
         }
     }
 

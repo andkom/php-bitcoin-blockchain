@@ -137,9 +137,6 @@ class Transaction
     {
         $stream = new Writer();
         $this->serialize($stream, $segWit);
-        $hash = Utils::hash($stream->getBuffer(), true);
-        $hash = strrev($hash);
-        $hash = bin2hex($hash);
-        return $hash;
+        return Utils::hash($stream->getBuffer(), true);
     }
 }

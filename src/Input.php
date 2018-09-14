@@ -45,7 +45,7 @@ class Input
     static public function parse(Reader $stream): self
     {
         $in = new self;
-        $in->prevTxHash = bin2hex(strrev($stream->read(32)));
+        $in->prevTxHash = $stream->read(32);
         $in->prevTxOutIndex = $stream->readInt32();
         $in->scriptSig = new ScriptSig($stream->readString());
         $in->sequenceNo = $stream->readInt32();
@@ -58,7 +58,7 @@ class Input
      */
     public function serialize(Writer $stream): self
     {
-        $stream->write(strrev(hex2bin($this->prevTxHash)));
+        $stream->write($this->prevTxHash);
         $stream->writeUInt32($this->prevTxOutIndex);
         $stream->writeString($this->scriptSig->getData());
         $stream->writeInt32($this->sequenceNo);
@@ -70,6 +70,6 @@ class Input
      */
     public function isCoinbase(): bool
     {
-        return $this->prevTxHash == '0000000000000000000000000000000000000000000000000000000000000000';
+        return $this->prevTxHash == str_repeat("\x00", 32);
     }
 }

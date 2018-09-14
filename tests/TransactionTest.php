@@ -18,7 +18,7 @@ class TransactionTest extends TestCase
         $transaction = Transaction::parse($reader);
 
         $this->assertEquals($transaction->isSegwit, true);
-        $this->assertEquals($transaction->getHash(), '2db64f394b10eee0a1d642ea8e390af7595c9bfdb6d25b0ddc21e9112212e95c');
+        $this->assertEquals($transaction->getHash(), hex2bin('5ce9122211e921dc0d5bd2b6fd9b5c59f70a398eea42d6a1e0ee104b394fb62d'));
 
         $writer = new Writer();
         $transaction->serialize($writer);

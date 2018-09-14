@@ -33,18 +33,18 @@ class BlockTest extends TestCase
         $genesis .= "00000000"; // lock time
 
         $block = Block::parse(new Reader(hex2bin($genesis)));
-        $this->assertEquals($block->header->getHash(), '000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f');
+        $this->assertEquals($block->header->getHash(), hex2bin('6fe28c0ab6f1b372c1a6a246ae63f74f931e8365e15a089c68d6190000000000'));
         $this->assertEquals($block->header->version, 1);
-        $this->assertEquals($block->header->prevBlockHash, '0000000000000000000000000000000000000000000000000000000000000000');
-        $this->assertEquals($block->header->merkleRootHash, '4a5e1e4baab89f3a32518a88c31bc87f618f76673e2cc77ab2127b7afdeda33b');
+        $this->assertEquals($block->header->prevBlockHash, hex2bin('0000000000000000000000000000000000000000000000000000000000000000'));
+        $this->assertEquals($block->header->merkleRootHash, hex2bin('3ba3edfd7a7b12b27ac72c3e67768f617fc81bc3888a51323a9fb8aa4b1e5e4a'));
         $this->assertEquals($block->header->time, 1231006505);
         $this->assertEquals($block->header->bits, 486604799);
         $this->assertEquals($block->header->nonce, 2083236893);
-        $this->assertEquals($block->transactions[0]->getHash(), '4a5e1e4baab89f3a32518a88c31bc87f618f76673e2cc77ab2127b7afdeda33b');
+        $this->assertEquals($block->transactions[0]->getHash(), hex2bin('3ba3edfd7a7b12b27ac72c3e67768f617fc81bc3888a51323a9fb8aa4b1e5e4a'));
         $this->assertEquals($block->transactions[0]->version, 1);
         $this->assertEquals($block->transactions[0]->inCount, 1);
         $this->assertEquals($block->transactions[0]->inputs[0]->isCoinbase(), true);
-        $this->assertEquals($block->transactions[0]->inputs[0]->prevTxHash, '0000000000000000000000000000000000000000000000000000000000000000');
+        $this->assertEquals($block->transactions[0]->inputs[0]->prevTxHash, hex2bin('0000000000000000000000000000000000000000000000000000000000000000'));
         $this->assertEquals($block->transactions[0]->inputs[0]->prevTxOutIndex, -1);
         $this->assertEquals($block->transactions[0]->inputs[0]->sequenceNo, -1);
         $this->assertEquals($block->transactions[0]->inputs[0]->scriptSig->getData(), hex2bin('04ffff001d0104455468652054696d65732030332f4a616e2f32303039204368616e63656c6c6f72206f6e206272696e6b206f66207365636f6e64206261696c6f757420666f722062616e6b73'));

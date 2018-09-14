@@ -74,4 +74,22 @@ class Utils
 
         return $output;
     }
+
+    /**
+     * @param string $hash
+     * @return string
+     */
+    static public function hashToHex(string $hash): string
+    {
+        return bin2hex(strrev($hash));
+    }
+
+    /**
+     * @param string $hex
+     * @return string
+     */
+    static public function hexToHash(string $hex): string
+    {
+        return strrev(hex2bin($hex));
+    }
 }

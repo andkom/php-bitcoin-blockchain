@@ -8,7 +8,7 @@ $chainStateDir = "$dataDir/chainstate";
 $reader = new \AndKom\PhpBitcoinBlockchain\ChainStateReader($chainStateDir);
 
 foreach ($reader->read() as $unspentOutput) {
-    echo "TX:       " . bin2hex(strrev($unspentOutput->hash)) . "\n";
+    echo "TX:       " . \AndKom\PhpBitcoinBlockchain\Utils::hashToHex($unspentOutput->hash) . "\n";
     echo "Index:    " . $unspentOutput->index . "\n";
     echo "Height:   " . $unspentOutput->height . "\n";
     echo "Coinbase: " . $unspentOutput->coinbase . "\n";

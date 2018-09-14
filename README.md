@@ -43,10 +43,10 @@ foreach ($blockchainReader->getChainState()->read() as $utxo) {
 $block = $blockchainReader->getBlockByHash('binary hash in little endian'); 
 
 // get block by height
-$block = $blockchainReader->getBlockByHash(12345);
+$block = $blockchainReader->getBlockByHeight(12345);
 
 // get best block hash
-$hash = $blockchainReader->getChainState()->getBestBlock();
+$hash = $blockchainReader->getChainstate()->getBestBlock();
 ```
 
 See more examples in the examples dir.

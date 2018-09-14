@@ -7,10 +7,10 @@ namespace AndKom\PhpBitcoinBlockchain;
 use AndKom\BCDataStream\Reader;
 
 /**
- * Class ChainStateReader
+ * Class ChainstateReader
  * @package AndKom\PhpBitcoinBlockchain
  */
-class ChainStateReader
+class ChainstateReader
 {
     const PREFIX_COIN = 'C';
     const KEY_BEST_BLOCK = 'B';
@@ -19,7 +19,7 @@ class ChainStateReader
     /**
      * @var string
      */
-    protected $chainStateDir;
+    protected $chainstateDir;
 
     /**
      * @var \LevelDB
@@ -32,12 +32,12 @@ class ChainStateReader
     protected $obfuscateKey;
 
     /**
-     * ChainStateReader constructor.
-     * @param string $chainStateDir
+     * ChainstateReader constructor.
+     * @param string $chainstateDir
      */
-    public function __construct(string $chainStateDir = '')
+    public function __construct(string $chainstateDir = '')
     {
-        $this->chainStateDir = $chainStateDir;
+        $this->chainstateDir = $chainstateDir;
     }
 
     /**
@@ -49,11 +49,11 @@ class ChainStateReader
             return $this->db;
         }
 
-        return $this->db = new \LevelDB($this->chainStateDir);
+        return $this->db = new \LevelDB($this->chainstateDir);
     }
 
     /**
-     * @return ChainStateReader
+     * @return ChainstateReader
      */
     protected function closeDb(): self
     {
@@ -145,7 +145,7 @@ class ChainStateReader
             throw new Exception('Extension leveldb is not installed.');
         }
 
-        $db = new \LevelDB($this->chainStateDir);
+        $db = new \LevelDB($this->chainstateDir);
 
         foreach ($db->getIterator() as $key => $value) {
             $key = new Reader($key);

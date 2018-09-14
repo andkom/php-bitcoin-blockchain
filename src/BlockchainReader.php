@@ -28,7 +28,7 @@ class BlockchainReader
     /**
      * @var string
      */
-    protected $chainStateDir;
+    protected $chainstateDir;
 
     /**
      * @var Index
@@ -44,7 +44,7 @@ class BlockchainReader
         $this->dataDir = $dataDir;
         $this->blocksDir = implode(DIRECTORY_SEPARATOR, [$dataDir, 'blocks']);
         $this->blockIndexDir = implode(DIRECTORY_SEPARATOR, [$dataDir, 'blocks', 'index']);
-        $this->chainStateDir = implode(DIRECTORY_SEPARATOR, [$dataDir, 'chainstate']);
+        $this->chainstateDir = implode(DIRECTORY_SEPARATOR, [$dataDir, 'chainstate']);
     }
 
     /**
@@ -63,11 +63,11 @@ class BlockchainReader
     }
 
     /**
-     * @return ChainStateReader
+     * @return ChainstateReader
      */
-    public function getChainState(): ChainStateReader
+    public function getChainstate(): ChainstateReader
     {
-        return new ChainStateReader($this->chainStateDir);
+        return new ChainstateReader($this->chainstateDir);
     }
 
     /**

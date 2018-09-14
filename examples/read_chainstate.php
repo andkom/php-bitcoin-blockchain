@@ -3,9 +3,9 @@
 include '../vendor/autoload.php';
 
 $dataDir = getenv('HOME') . '/Library/Application Support/Bitcoin';
-$chainStateDir = "$dataDir/chainstate";
+$chainstateDir = "$dataDir/chainstate";
 
-$reader = new \AndKom\PhpBitcoinBlockchain\ChainStateReader($chainStateDir);
+$reader = new \AndKom\PhpBitcoinBlockchain\ChainstateReader($chainstateDir);
 
 foreach ($reader->read() as $unspentOutput) {
     echo "TX:       " . \AndKom\PhpBitcoinBlockchain\Utils::hashToHex($unspentOutput->hash) . "\n";

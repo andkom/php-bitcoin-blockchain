@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace AndKom\PhpBitcoinBlockchain\Tests;
+namespace AndKom\Bitcoin\Blockchain\Tests;
 
-use AndKom\PhpBitcoinBlockchain\Opcodes;
-use AndKom\PhpBitcoinBlockchain\Script;
+use AndKom\Bitcoin\Blockchain\Opcodes;
+use AndKom\Bitcoin\Blockchain\Script;
 use PHPUnit\Framework\TestCase;
 
 class ScriptTest extends TestCase

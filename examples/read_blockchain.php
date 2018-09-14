@@ -4,8 +4,8 @@ require_once '../vendor/autoload.php';
 
 $dataDir = getenv('HOME') . '/Library/Application Support/Bitcoin';
 
-$reader = new \AndKom\PhpBitcoinBlockchain\BlockchainReader($dataDir);
+$reader = new \AndKom\Bitcoin\Blockchain\BlockchainReader($dataDir);
 
 foreach ($reader->readBlocks(0, 100) as $height => $block) {
-    echo $height . " => " . \AndKom\PhpBitcoinBlockchain\Utils::hashToHex($block->header->getHash()) . "\n";
+    echo $height . " => " . \AndKom\Bitcoin\Blockchain\Utils::hashToHex($block->header->getHash()) . "\n";
 }

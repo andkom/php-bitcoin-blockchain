@@ -6,7 +6,7 @@ $dataDir = getenv('HOME') . '/Library/Application Support/Bitcoin';
 $blocksDir = "$dataDir/blocks";
 $indexDir = "$blocksDir/index";
 
-$reader = new \AndKom\PhpBitcoinBlockchain\IndexReader($indexDir);
+$reader = new \AndKom\Bitcoin\Blockchain\IndexReader($indexDir);
 
 echo "Reading block index...\n";
 

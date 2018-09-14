@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace AndKom\PhpBitcoinBlockchain\Tests;
+namespace AndKom\Bitcoin\Blockchain\Tests;
 
 use AndKom\BCDataStream\Reader;
 use AndKom\BCDataStream\Writer;
-use AndKom\PhpBitcoinBlockchain\Block;
+use AndKom\Bitcoin\Blockchain\Block;
 use PHPUnit\Framework\TestCase;
 
 class BlockTest extends TestCase

@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace AndKom\PhpBitcoinBlockchain\Network;
+namespace AndKom\Bitcoin\Blockchain\Network;
 
 /**
  * Class Bitcoin
- * @package AndKom\PhpBitcoinBlockchain\Network
+ * @package AndKom\Bitcoin\Blockchain\Network
  */
 class Bitcoin
 {

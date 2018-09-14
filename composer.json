@@ -25,12 +25,12 @@
   },
   "autoload": {
     "psr-4": {
-      "AndKom\\PhpBitcoinBlockchain\\": "src/"
+      "AndKom\\Bitcoin\\Blockchain\\": "src/"
     }
   },
   "autoload-dev": {
     "psr-4": {
-      "AndKom\\PhpBitcoinBlockchain\\Tests\\": "tests/"
+      "AndKom\\Bitcoin\\Blockchain\\Tests\\": "tests/"
     }
   }
 }

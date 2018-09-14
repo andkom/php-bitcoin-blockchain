@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace AndKom\PhpBitcoinBlockchain\Tests;
+namespace AndKom\Bitcoin\Blockchain\Tests;
 
-use AndKom\PhpBitcoinBlockchain\ScriptPubKey;
+use AndKom\Bitcoin\Blockchain\ScriptPubKey;
 use PHPUnit\Framework\TestCase;
 
 class ScriptPubKeyTest extends TestCase

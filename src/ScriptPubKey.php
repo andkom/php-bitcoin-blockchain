@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace AndKom\PhpBitcoinBlockchain;
+namespace AndKom\Bitcoin\Blockchain;
 
-use AndKom\PhpBitcoinBlockchain\Network\Bitcoin;
+use AndKom\Bitcoin\Blockchain\Network\Bitcoin;
 
 /**
  * Class ScriptPubKey
- * @package AndKom\PhpBitcoinBlockchain
+ * @package AndKom\Bitcoin\Blockchain
  */
 class ScriptPubKey extends Script
 {

@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace AndKom\PhpBitcoinBlockchain;
+namespace AndKom\Bitcoin\Blockchain;
 
 /**
  * Class BlockchainReader
- * @package AndKom\PhpBitcoinBlockchain
+ * @package AndKom\Bitcoin\Blockchain
  */
 class BlockchainReader
 {

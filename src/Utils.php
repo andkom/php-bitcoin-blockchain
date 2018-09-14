@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace AndKom\PhpBitcoinBlockchain;
+namespace AndKom\Bitcoin\Blockchain;
 
 use StephenHill\Base58;
 
 /**
  * Class Utils
- * @package AndKom\PhpBitcoinBlockchain
+ * @package AndKom\Bitcoin\Blockchain
  */
 class Utils
 {

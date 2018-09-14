@@ -5,10 +5,10 @@ include '../vendor/autoload.php';
 $dataDir = getenv('HOME') . '/Library/Application Support/Bitcoin';
 $chainstateDir = "$dataDir/chainstate";
 
-$reader = new \AndKom\PhpBitcoinBlockchain\ChainstateReader($chainstateDir);
+$reader = new \AndKom\Bitcoin\Blockchain\ChainstateReader($chainstateDir);
 
 foreach ($reader->read() as $unspentOutput) {
-    echo "TX:       " . \AndKom\PhpBitcoinBlockchain\Utils::hashToHex($unspentOutput->hash) . "\n";
+    echo "TX:       " . \AndKom\Bitcoin\Blockchain\Utils::hashToHex($unspentOutput->hash) . "\n";
     echo "Index:    " . $unspentOutput->index . "\n";
     echo "Height:   " . $unspentOutput->height . "\n";
     echo "Coinbase: " . $unspentOutput->coinbase . "\n";

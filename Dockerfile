@@ -4,4 +4,4 @@ RUN apt-get update \
     && apt-get install -y libleveldb-dev libgmp-dev \
     && pecl install leveldb-0.2.1 \
     && docker-php-ext-enable leveldb \
-    && docker-php-ext-install gmp
+    && docker-php-ext-install gmp bcmath

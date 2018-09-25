@@ -18,10 +18,7 @@ class ScriptPubKey extends Script
      */
     public function isReturn(): bool
     {
-        $operations = $this->parse();
-
-        return count($operations) >= 1 &&
-            $operations[0]->code == Opcodes::OP_RETURN;
+        return $this->size >= 1 && ord($this->data[0]) == Opcodes::OP_RETURN;
     }
 
     /**
@@ -29,11 +26,23 @@ class ScriptPubKey extends Script
      */
     public function isPayToPubKey(): bool
     {
-        $operations = $this->parse();
+        // compressed pubkey
+        if ($this->size == 35 &&
+            ord($this->data[0]) == 33 &&
+            ord($this->data[-1]) == Opcodes::OP_CHECKSIG &&
+            ($this->data[1] == "\x02" || $this->data[1] == "\x03")) {
+            return true;
+        }
 
-        return count($operations) == 2 &&
-            ($operations[0]->size == 33 || $operations[0]->size == 65) &&
-            $operations[1]->code == Opcodes::OP_CHECKSIG;
+        // uncompressed pubkey
+        if ($this->size == 67 &&
+            ord($this->data[0]) == 65 &&
+            ord($this->data[-1]) == Opcodes::OP_CHECKSIG &&
+            $this->data[1] == "\x04") {
+            return true;
+        }
+
+        return false;
     }
 
     /**
@@ -41,14 +50,12 @@ class ScriptPubKey extends Script
      */
     public function isPayToPubKeyHash(): bool
     {
-        $operations = $this->parse();
-
-        return count($operations) == 5 &&
-            $operations[0]->code == Opcodes::OP_DUP &&
-            $operations[1]->code == Opcodes::OP_HASH160 &&
-            $operations[2]->size == 20 &&
-            $operations[3]->code == Opcodes::OP_EQUALVERIFY &&
-            $operations[4]->code == Opcodes::OP_CHECKSIG;
+        return $this->size == 25 &&
+            ord($this->data[0]) == Opcodes::OP_DUP &&
+            ord($this->data[1]) == Opcodes::OP_HASH160 &&
+            ord($this->data[2]) == 20 &&
+            ord($this->data[-2]) == Opcodes::OP_EQUALVERIFY &&
+            ord($this->data[-1]) == Opcodes::OP_CHECKSIG;
     }
 
     /**
@@ -56,12 +63,10 @@ class ScriptPubKey extends Script
      */
     public function isPayToScriptHash(): bool
     {
-        $operations = $this->parse();
-
-        return count($operations) == 3 &&
-            $operations[0]->code == Opcodes::OP_HASH160 &&
-            $operations[1]->size == 20 &&
-            $operations[2]->code == Opcodes::OP_EQUAL;
+        return $this->size == 23 &&
+            ord($this->data[0]) == Opcodes::OP_HASH160 &&
+            ord($this->data[1]) == 20 &&
+            ord($this->data[-1]) == Opcodes::OP_EQUAL;
     }
 
     /**
@@ -69,12 +74,24 @@ class ScriptPubKey extends Script
      */
     public function isMultisig(): bool
     {
-        $operations = $this->parse();
+        $keys = ord($this->data[0]);
+        $sigs = ord($this->data[-2]);
 
-        return ($count = count($operations)) >= 4 &&
-            $operations[0]->code >= Opcodes::OP_1 &&
-            $operations[$count - 2]->code >= Opcodes::OP_1 &&
-            $operations[$count - 1]->code == Opcodes::OP_CHECKMULTISIG;
+        if (!($this->size >= 24 &&
+            $keys >= Opcodes::OP_1 && $keys <= Opcodes::OP_16 &&
+            $sigs && $sigs <= Opcodes::OP_16 &&
+            $keys >= $sigs &&
+            ord($this->data[-1]) == Opcodes::OP_CHECKMULTISIG)) {
+            return false;
+        }
+
+        for ($i = 1, $k = 0; $i < $this->size - 2; $i += 21, $k++) {
+            if (ord($this->data[$i]) != 20) {
+                return false;
+            }
+        }
+
+        return $keys - Opcodes::OP_1 + 1 == $k;
     }
 
     /**
@@ -82,12 +99,11 @@ class ScriptPubKey extends Script
      */
     public function isPayToWitnessPubKeyHash(): bool
     {
-        $operations = $this->parse();
+        $version = ord($this->data[0]);
 
-        return count($operations) == 2 &&
-            $operations[0]->code >= Opcodes::OP_0 &&
-            $operations[0]->code <= Opcodes::OP_16 &&
-            $operations[1]->size == 20;
+        return $this->size == 22 &&
+            $version >= Opcodes::OP_0 && $version <= Opcodes::OP_16 &&
+            ord($this->data[1]) == 20;
     }
 
     /**
@@ -95,12 +111,11 @@ class ScriptPubKey extends Script
      */
     public function isPayToWitnessScriptHash(): bool
     {
-        $operations = $this->parse();
+        $version = ord($this->data[0]);
 
-        return count($operations) == 2 &&
-            $operations[0]->code >= Opcodes::OP_0 &&
-            $operations[0]->code <= Opcodes::OP_16 &&
-            $operations[1]->size == 32;
+        return $this->size == 34 &&
+            $version >= Opcodes::OP_0 && $version <= Opcodes::OP_16 &&
+            ord($this->data[1]) == 32;
     }
 
     /**

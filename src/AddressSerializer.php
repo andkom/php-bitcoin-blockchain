@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace AndKom\Bitcoin\Blockchain;
 
-use AndKom\Bitcoin\Blockchain\Exception\AddressException;
 use AndKom\Bitcoin\Blockchain\Network\Bitcoin;
 use function BitWasp\Bech32\encodeSegwit;
 use StephenHill\Base58;

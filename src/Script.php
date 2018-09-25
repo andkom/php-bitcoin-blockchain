@@ -18,6 +18,11 @@ class Script
     public $data;
 
     /**
+     * @var
+     */
+    public $size;
+
+    /**
      * @var array
      */
     protected $operations;
@@ -54,6 +59,7 @@ class Script
     public function setData(string $data): self
     {
         $this->data = $data;
+        $this->size = strlen($data);
         $this->operations = null;
         return $this;
     }

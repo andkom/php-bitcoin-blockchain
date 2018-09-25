@@ -92,4 +92,26 @@ class Utils
     {
         return strrev(hex2bin($hex));
     }
+
+    /**
+     * @param \GMP $gmp
+     * @return string
+     */
+    static public function gmpToBin(\GMP $gmp): string
+    {
+        $hex = gmp_strval($gmp, 16);
+        if (strlen($hex) % 2 != 0) {
+            $hex = '0' . $hex;
+        }
+        return hex2bin($hex);
+    }
+
+    /**
+     * @param string $data
+     * @return \GMP
+     */
+    static public function binToGmp(string $data): \GMP
+    {
+        return gmp_init(bin2hex($data), 16);
+    }
 }

@@ -93,9 +93,9 @@ class PublicKey
             throw new PublicKeyException('Public key is already compressed.');
         }
 
-        $wasOdd = \gmp_cmp(
-                \gmp_mod($this->y, \gmp_init(2)),
-                \gmp_init(0)
+        $wasOdd = gmp_cmp(
+                gmp_mod($this->y, gmp_init(2)),
+                gmp_init(0)
             ) !== 0;
 
         return new static($this->x, null, $wasOdd);
@@ -154,7 +154,7 @@ class PublicKey
                 throw new PublicKeyException('Invalid compressed public key prefix.');
             }
 
-            $x = \gmp_init(bin2hex(substr($data, 1, 32)), 16);
+            $x = Utils::binToGmp(substr($data, 1, 32));
             $y = null;
         } elseif ($length == static::LENGTH_UNCOMPRESSED) {
             $prefix = substr($data, 0, 1);
@@ -163,8 +163,8 @@ class PublicKey
                 throw new PublicKeyException('Invalid uncompressed public key prefix.');
             }
 
-            $x = \gmp_init(bin2hex(substr($data, 1, 32)), 16);
-            $y = \gmp_init(bin2hex(substr($data, 33, 32)), 16);
+            $x = Utils::binToGmp(substr($data, 1, 32));
+            $y = Utils::binToGmp(substr($data, 33, 32));
         } else {
             throw new PublicKeyException('Invalid public key size.');
         }
@@ -177,14 +177,14 @@ class PublicKey
      */
     public function serialize(): string
     {
-        $x = hex2bin(\gmp_strval($this->x, 16));
+        $x = Utils::gmpToBin($this->x);
 
         if ($this->isCompressed()) {
             $prefix = $this->wasOdd ? static::PREFIX_COMPRESSED_ODD : static::PREFIX_COMPRESSED_EVEN;
             $y = '';
         } else {
             $prefix = static::PREFIX_UNCOMPRESSED;
-            $y = hex2bin(\gmp_strval($this->y, 16));
+            $y = Utils::gmpToBin($this->y);
         }
 
         return $prefix . $x . $y;

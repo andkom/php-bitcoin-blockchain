@@ -24,21 +24,29 @@ class ScriptPubKey extends Script
     /**
      * @return bool
      */
+    public function isEmpty(): bool
+    {
+        return $this->size == 0;
+    }
+
+    /**
+     * @return bool
+     */
     public function isPayToPubKey(): bool
     {
         // compressed pubkey
-        if ($this->size == 35 &&
-            ord($this->data[0]) == 33 &&
-            ord($this->data[-1]) == Opcodes::OP_CHECKSIG &&
-            ($this->data[1] == "\x02" || $this->data[1] == "\x03")) {
+        if ($this->size == PublicKey::LENGTH_COMPRESSED + 2 &&
+            ord($this->data[0]) == PublicKey::LENGTH_COMPRESSED &&
+            ($this->data[1] == PublicKey::PREFIX_COMPRESSED_EVEN || $this->data[1] == PublicKey::PREFIX_COMPRESSED_ODD) &&
+            ord($this->data[-1]) == Opcodes::OP_CHECKSIG) {
             return true;
         }
 
         // uncompressed pubkey
-        if ($this->size == 67 &&
-            ord($this->data[0]) == 65 &&
-            ord($this->data[-1]) == Opcodes::OP_CHECKSIG &&
-            $this->data[1] == "\x04") {
+        if ($this->size == PublicKey::LENGTH_UNCOMPRESSED + 2 &&
+            ord($this->data[0]) == PublicKey::LENGTH_UNCOMPRESSED &&
+            $this->data[1] == PublicKey::PREFIX_UNCOMPRESSED &&
+            ord($this->data[-1]) == Opcodes::OP_CHECKSIG) {
             return true;
         }
 
@@ -127,40 +135,30 @@ class ScriptPubKey extends Script
      */
     public function getOutputAddress(Bitcoin $network = null): string
     {
-        try {
-            $operations = $this->parse();
-        } catch (\Exception $exception) {
-            throw new ScriptException('Unable to decode output address (script parse error).');
-        }
-
         $addressSerializer = new AddressSerializer($network);
 
         if ($this->isPayToPubKey()) {
-            return $addressSerializer->getPayToPubKey($operations[0]->data);
+            if ($this->size == 35) {
+                return $addressSerializer->getPayToPubKey(substr($this->data, 1, 33));
+            } elseif ($this->size == 67) {
+                return $addressSerializer->getPayToPubKey(substr($this->data, 1, 65));
+            }
         }
 
         if ($this->isPayToPubKeyHash()) {
-            return $addressSerializer->getPayToPubKeyHash($operations[2]->data);
+            return $addressSerializer->getPayToPubKeyHash(substr($this->data, 3, 20));
         }
 
         if ($this->isPayToScriptHash()) {
-            return $addressSerializer->getPayToScriptHash($operations[1]->data);
+            return $addressSerializer->getPayToScriptHash(substr($this->data, 2, 20));
         }
 
         if ($this->isPayToWitnessPubKeyHash()) {
-            return $addressSerializer->getPayToWitnessPubKeyHash($operations[1]->data);
+            return $addressSerializer->getPayToWitnessPubKeyHash(substr($this->data, 2, 20));
         }
 
         if ($this->isPayToWitnessScriptHash()) {
-            return $addressSerializer->getPayToWitnessScriptHash($operations[1]->data);
-        }
-
-        if ($this->isMultisig()) {
-            throw new ScriptException('Unable to decode output address (multisig).');
-        }
-
-        if ($this->isReturn()) {
-            throw new ScriptException('Unable to decode output address (OP_RETURN).');
+            return $addressSerializer->getPayToWitnessScriptHash(substr($this->data, 2, 32));
         }
 
         throw new ScriptException('Unable to decode output address.');

@@ -128,6 +128,14 @@ class UnspentOutput
                 $pubKey = chr($this->type - 2) . $this->script;
                 $decompressed = PublicKey::parse($pubKey)->decompress()->serialize();
                 return $addressSerializer->getPayToPubKey($decompressed);
+
+            case 0x1c;
+                $addressSerializer->getPayToWitnessPubKeyHash($this->script);
+                break;
+
+            case 0x28:
+                $addressSerializer->getPayToWitnessScriptHash($this->script);
+                break;
         }
 
         // fallback

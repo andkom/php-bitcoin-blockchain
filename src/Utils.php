@@ -17,7 +17,7 @@ class Utils
      * @param bool $raw
      * @return string
      */
-    static public function hash(string $data, bool $raw = false): string
+    static public function hash256(string $data, bool $raw = false): string
     {
         return hash('sha256', hash('sha256', $data, true), $raw);
     }
@@ -41,7 +41,7 @@ class Utils
     static public function hash160ToAddress(string $hash160, int $network): string
     {
         $hash160 = chr($network) . $hash160;
-        $checksum = substr(static::hash($hash160, true), 0, 4);
+        $checksum = substr(static::hash256($hash160, true), 0, 4);
         $address = $hash160 . $checksum;
         return (new Base58())->encode($address);
     }

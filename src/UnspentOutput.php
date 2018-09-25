@@ -119,9 +119,12 @@ class UnspentOutput
 
             case 0x02:
             case 0x03:
+                return $addressSerializer->getPayToPubKeyAddress($this->script);
+
             case 0x04:
             case 0x05:
-                return $addressSerializer->getPayToPubKeyAddress($this->script);
+                $decompressed = PublicKey::parse($this->script)->decompress()->serialize();
+                return $addressSerializer->getPayToPubKeyAddress($decompressed);
         }
 
         // fallback

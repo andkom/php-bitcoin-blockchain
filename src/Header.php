@@ -81,6 +81,6 @@ class Header
     {
         $stream = new Writer();
         $this->serialize($stream);
-        return Utils::hash($stream->getBuffer(), true);
+        return Utils::hash256($stream->getBuffer(), true);
     }
 }

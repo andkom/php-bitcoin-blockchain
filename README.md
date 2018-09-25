@@ -15,6 +15,7 @@ A PHP implementation of Bitcoin blockchain database parser.
 - Bitcoin Core >= 0.15.1
 - leveldb >= 1.20
 - php-leveldb >= 0.2.1
+- php-gmp >= 7.1
 
 ### Installation
 

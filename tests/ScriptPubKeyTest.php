@@ -22,7 +22,7 @@ class ScriptPubKeyTest extends TestCase
     // [pubkey] OP_CHECKSIG
     public function testParseP2PK()
     {
-        $hex = '41'; // OP_PUSHDATA
+        $hex = '41'; // 65
         $hex .= '0479be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798483ada7726a3c4655da4fbfc0e1108a8fd17b448a68554199c47d08ffb10d4b8'; // pubkey
         $hex .= 'ac'; // OP_CHECKSIG
 
@@ -35,7 +35,7 @@ class ScriptPubKeyTest extends TestCase
     // [pubkey] OP_CHECKSIG
     public function testParseP2PKCompressed()
     {
-        $hex = '21'; // OP_PUSHDATA
+        $hex = '21'; // 33
         $hex .= '0279be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798'; // pubkey
         $hex .= 'ac'; // OP_CHECKSIG
 
@@ -50,7 +50,7 @@ class ScriptPubKeyTest extends TestCase
     {
         $hex = '76'; // OP_DUP
         $hex .= 'a9'; // OP_HASH160
-        $hex .= '14'; // OP_PUSHDATA
+        $hex .= '14'; // 20
         $hex .= '91b24bf9f5288532960ac687abb035127b1d28a5'; // pubkey hash
         $hex .= '88'; // OP_EQUALVERIFY
         $hex .= 'ac'; // OP_CHECKSIG
@@ -61,11 +61,26 @@ class ScriptPubKeyTest extends TestCase
         $this->assertEquals($script->getOutputAddress(), '1EHNa6Q4Jz2uvNExL497mE43ikXhwF6kZm');
     }
 
+    public function testParseP2PKHAlt()
+    {
+        $hex = '76'; // OP_DUP
+        $hex .= 'a9'; // OP_HASH160
+        $hex .= '4c'; // OP_PUSHDATA1
+        $hex .= '14'; // 20
+        $hex .= 'cd4967766b612eb44345fb00f316d890cd3d508688'; // pubkey hash
+        $hex .= 'ac'; // OP_CHECKSIG
+
+        $script = new ScriptPubKey(hex2bin($hex));
+
+        $this->assertTrue($script->isPayToPubKeyHashAlt());
+        $this->assertEquals($script->getOutputAddress(), '1KiTTY2sRjPRdobHdNTzBVv7rBiNG1tX2E');
+    }
+
     // OP_HASH160 [hash] OP_EQUAL
     public function testParseP2SH()
     {
         $hex = 'a9'; // OP_HASH160
-        $hex .= '14'; // OP_PUSHDATA
+        $hex .= '14'; // 20
         $hex .= '91b24bf9f5288532960ac687abb035127b1d28a5'; // script hash
         $hex .= '87'; // OP_EQUAL
 
@@ -78,14 +93,14 @@ class ScriptPubKeyTest extends TestCase
     // [numsigs] [...pubkeys...] [numpubkeys] OP_CHECKMULTISIG
     public function testParseMultisig()
     {
-        $hex = '53'; // OP_3
-        $hex .= '14'; // OP_PUSHDATA
+        $hex = '53'; // 3
+        $hex .= '14'; // 20
         $hex .= '91b24bf9f5288532960ac687abb035127b1d28a5'; // pubkey hash
-        $hex .= '14'; // OP_PUSHDATA
+        $hex .= '14'; // 20
         $hex .= 'd6c8e828c1eca1bba065e1b83e1dc2a36e387a42'; // pubkey hash
-        $hex .= '14'; // OP_PUSHDATA
+        $hex .= '14'; // 20
         $hex .= 'ec7eced2c57ed1292bc4eb9bfd13c9f7603bc338'; // pubkey hash
-        $hex .= '52'; // OP_2
+        $hex .= '52'; // 2
         $hex .= 'ae'; // OP_CHECKMULTISIG
 
         $script = new ScriptPubKey(hex2bin($hex));
@@ -97,7 +112,7 @@ class ScriptPubKeyTest extends TestCase
     public function testParseP2WPKH()
     {
         $hex = '00'; // segwit version
-        $hex .= '14'; // OP_PUSHDATA
+        $hex .= '14'; // 20
         $hex .= '536523b38a207338740797cd03c3312e81408d53'; // pubkey hash
 
         $script = new ScriptPubKey(hex2bin($hex));
@@ -110,7 +125,7 @@ class ScriptPubKeyTest extends TestCase
     public function testParseP2WSH()
     {
         $hex = '00'; // segwit version
-        $hex .= '20'; // OP_PUSHDATA
+        $hex .= '20'; // 20
         $hex .= '701a8d401c84fb13e6baf169d59684e17abd9fa216c8cc5b9fc63d622ff8c58d'; // hash
 
         $script = new ScriptPubKey(hex2bin($hex));

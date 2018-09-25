@@ -67,6 +67,21 @@ class ScriptPubKey extends Script
     }
 
     /**
+     * handle output of TX 059787f0673ab2c00b8f2f9810fdd14b0cd6a3034cc44dc30de124f606d3670a
+     * @return bool
+     */
+    public function isPayToPubKeyHashAlt(): bool
+    {
+        return $this->size == 26 &&
+            ord($this->data[0]) == Opcodes::OP_DUP &&
+            ord($this->data[1]) == Opcodes::OP_HASH160 &&
+            ord($this->data[2]) == Opcodes::OP_PUSHDATA1 &&
+            ord($this->data[3]) == 20 &&
+            ord($this->data[-2]) == Opcodes::OP_EQUALVERIFY &&
+            ord($this->data[-1]) == Opcodes::OP_CHECKSIG;
+    }
+
+    /**
      * @return bool
      */
     public function isPayToScriptHash(): bool
@@ -147,6 +162,10 @@ class ScriptPubKey extends Script
 
         if ($this->isPayToPubKeyHash()) {
             return $addressSerializer->getPayToPubKeyHash(substr($this->data, 3, 20));
+        }
+
+        if ($this->isPayToPubKeyHashAlt()) {
+            return $addressSerializer->getPayToPubKeyHash(substr($this->data, 4, 20));
         }
 
         if ($this->isPayToScriptHash()) {

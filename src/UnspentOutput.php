@@ -14,6 +14,8 @@ use AndKom\Bitcoin\Blockchain\Network\Bitcoin;
  */
 class UnspentOutput
 {
+    const SPECIAL_SCRIPTS = 6;
+
     /**
      * @var string
      */
@@ -112,30 +114,35 @@ class UnspentOutput
 
         // try do decompress script first
         switch ($this->type) {
-            case 0x00:
+            case 0:
                 return $addressSerializer->getPayToPubKeyHash($this->script);
 
-            case 0x01:
+            case 1:
                 return $addressSerializer->getPayToScriptHash($this->script);
 
-            case 0x02:
-            case 0x03:
+            case 2:
+            case 3:
                 $pubKey = chr($this->type) . $this->script;
                 return $addressSerializer->getPayToPubKey($pubKey);
 
-            case 0x04:
-            case 0x05:
+            case 4:
+            case 5:
                 $pubKey = chr($this->type - 2) . $this->script;
                 $decompressed = PublicKey::parse($pubKey)->decompress()->serialize();
                 return $addressSerializer->getPayToPubKey($decompressed);
 
-            case 0x1c;
+            case 22 + static::SPECIAL_SCRIPTS;
                 $addressSerializer->getPayToWitnessPubKeyHash($this->script);
                 break;
 
-            case 0x28:
+            case 34 + static::SPECIAL_SCRIPTS:
                 $addressSerializer->getPayToWitnessScriptHash($this->script);
                 break;
+
+            // invalid public key prefix
+            case 35 + static::SPECIAL_SCRIPTS:
+            case 67 + static::SPECIAL_SCRIPTS:
+                throw new ScriptException('Unable to decode output address.');
         }
 
         // fallback

@@ -148,7 +148,7 @@ class PublicKey
         $length = strlen($data);
 
         if ($length == static::LENGTH_COMPRESSED) {
-            $prefix = substr($data, 0, 1);
+            $prefix = $data[0];
 
             if ($prefix != static::PREFIX_COMPRESSED_ODD && $prefix != static::PREFIX_COMPRESSED_EVEN) {
                 throw new PublicKeyException('Invalid compressed public key prefix.');
@@ -157,7 +157,7 @@ class PublicKey
             $x = Utils::binToGmp(substr($data, 1, 32));
             $y = null;
         } elseif ($length == static::LENGTH_UNCOMPRESSED) {
-            $prefix = substr($data, 0, 1);
+            $prefix = $data[0];
 
             if ($prefix != static::PREFIX_UNCOMPRESSED) {
                 throw new PublicKeyException('Invalid uncompressed public key prefix.');

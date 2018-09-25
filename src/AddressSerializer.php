@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace AndKom\Bitcoin\Blockchain;
 
+use AndKom\Bitcoin\Blockchain\Exception\AddressException;
 use AndKom\Bitcoin\Blockchain\Network\Bitcoin;
 use function BitWasp\Bech32\encodeSegwit;
+use StephenHill\Base58;
 
 /**
  * Class AddressSerializer
@@ -32,13 +34,38 @@ class AddressSerializer
     }
 
     /**
+     * @param string $hash160
+     * @param int $prefix
+     * @return string
+     * @throws \Exception
+     */
+    public function hashToAddress(string $hash160, int $prefix): string
+    {
+        $hash160 = chr($prefix) . $hash160;
+        $checksum = substr(Utils::hash256($hash160, true), 0, 4);
+        $address = $hash160 . $checksum;
+        return (new Base58())->encode($address);
+    }
+
+    /**
+     * @param string $pubKey
+     * @param int $prefix
+     * @return string
+     * @throws \Exception
+     */
+    public function pubKeyToAddress(string $pubKey, int $prefix): string
+    {
+        return $this->hashToAddress(Utils::hash160($pubKey, true), $prefix);
+    }
+
+    /**
      * @param string $pubKey
      * @return string
      * @throws \Exception
      */
-    public function getPayToPubKeyAddress(string $pubKey): string
+    public function getPayToPubKey(string $pubKey): string
     {
-        return Utils::pubKeyToAddress($pubKey, $this->network::P2PKH_PREFIX);
+        return $this->pubKeyToAddress($pubKey, $this->network::P2PKH_PREFIX);
     }
 
     /**
@@ -46,9 +73,9 @@ class AddressSerializer
      * @return string
      * @throws \Exception
      */
-    public function getPayToPubKeyHashAddress(string $pubKeyHash): string
+    public function getPayToPubKeyHash(string $pubKeyHash): string
     {
-        return Utils::hash160ToAddress($pubKeyHash, $this->network::P2PKH_PREFIX);
+        return $this->hashToAddress($pubKeyHash, $this->network::P2PKH_PREFIX);
     }
 
     /**
@@ -58,7 +85,7 @@ class AddressSerializer
      */
     public function getPayToScriptHash(string $scriptHash): string
     {
-        return Utils::hash160ToAddress($scriptHash, $this->network::P2SH_PREFIX);
+        return $this->hashToAddress($scriptHash, $this->network::P2SH_PREFIX);
     }
 
     /**

@@ -121,11 +121,11 @@ class ScriptPubKey extends Script
         $addressSerializer = new AddressSerializer($network);
 
         if ($this->isPayToPubKey()) {
-            return $addressSerializer->getPayToPubKeyAddress($operations[0]->data);
+            return $addressSerializer->getPayToPubKey($operations[0]->data);
         }
 
         if ($this->isPayToPubKeyHash()) {
-            return $addressSerializer->getPayToPubKeyHashAddress($operations[2]->data);
+            return $addressSerializer->getPayToPubKeyHash($operations[2]->data);
         }
 
         if ($this->isPayToScriptHash()) {

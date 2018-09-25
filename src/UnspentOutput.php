@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace AndKom\Bitcoin\Blockchain;
 
 use AndKom\BCDataStream\Reader;
+use AndKom\Bitcoin\Blockchain\Exception\ScriptException;
 use AndKom\Bitcoin\Blockchain\Network\Bitcoin;
 
 /**
@@ -102,7 +103,7 @@ class UnspentOutput
     /**
      * @param Bitcoin|null $network
      * @return string
-     * @throws Exception
+     * @throws ScriptException
      * @throws \Exception
      */
     public function getAddress(Bitcoin $network = null): string
@@ -112,19 +113,21 @@ class UnspentOutput
         // try do decompress script first
         switch ($this->type) {
             case 0x00:
-                return $addressSerializer->getPayToPubKeyHashAddress($this->script);
+                return $addressSerializer->getPayToPubKeyHash($this->script);
 
             case 0x01:
                 return $addressSerializer->getPayToScriptHash($this->script);
 
             case 0x02:
             case 0x03:
-                return $addressSerializer->getPayToPubKeyAddress($this->script);
+                $pubKey = chr($this->type) . $this->script;
+                return $addressSerializer->getPayToPubKey($pubKey);
 
             case 0x04:
             case 0x05:
-                $decompressed = PublicKey::parse($this->script)->decompress()->serialize();
-                return $addressSerializer->getPayToPubKeyAddress($decompressed);
+                $pubKey = chr($this->type - 2) . $this->script;
+                $decompressed = PublicKey::parse($pubKey)->decompress()->serialize();
+                return $addressSerializer->getPayToPubKey($decompressed);
         }
 
         // fallback

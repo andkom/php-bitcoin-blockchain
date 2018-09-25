@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace AndKom\Bitcoin\Blockchain;
 
+use AndKom\Bitcoin\Blockchain\Exception\Exception;
+use AndKom\Bitcoin\Blockchain\Exception\IOException;
+
 /**
  * Class BlockchainReader
  * @package AndKom\Bitcoin\Blockchain
@@ -74,6 +77,7 @@ class BlockchainReader
      * @param BlockInfo $blockInfo
      * @return Block
      * @throws Exception
+     * @throws IOException
      */
     public function getBlockByInfo(BlockInfo $blockInfo): Block
     {
@@ -86,6 +90,7 @@ class BlockchainReader
      * @param string $hash
      * @return Block
      * @throws Exception
+     * @throws IOException
      */
     public function getBlockByHash(string $hash): Block
     {
@@ -96,6 +101,7 @@ class BlockchainReader
      * @param int $height
      * @return Block
      * @throws Exception
+     * @throws IOException
      */
     public function getBlockByHeight(int $height): Block
     {
@@ -105,8 +111,9 @@ class BlockchainReader
     /**
      * @param int|null $minHeight
      * @param int|null $maxHeight
-     * @return \Generator
      * @throws Exception
+     * @throws IOException
+     * @return \Generator
      */
     public function readBlocks(int $minHeight = null, int $maxHeight = null): \Generator
     {
@@ -128,12 +135,12 @@ class BlockchainReader
 
     /**
      * @return \Generator
-     * @throws Exception
+     * @throws IOException
      */
     public function readBlocksUnordered(): \Generator
     {
         if (!file_exists($this->blocksDir)) {
-            throw new Exception("Blocks dir '{$this->blocksDir}' not found.");
+            throw new IOException("Blocks dir '{$this->blocksDir}' not found.");
         }
 
         $dir = dir($this->blocksDir);

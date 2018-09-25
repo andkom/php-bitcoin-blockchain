@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace AndKom\Bitcoin\Blockchain;
 
+use AndKom\Bitcoin\Blockchain\Exception\Exception;
+
 /**
  * Class Index
  * @package AndKom\Bitcoin\Blockchain

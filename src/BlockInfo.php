@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace AndKom\Bitcoin\Blockchain;
 
 use AndKom\BCDataStream\Reader;
+use AndKom\Bitcoin\Blockchain\Exception\Exception;
 
 /**
  * Class BlockInfo

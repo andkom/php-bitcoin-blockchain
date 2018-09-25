@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace AndKom\Bitcoin\Blockchain;
 
+use AndKom\Bitcoin\Blockchain\Exception\ScriptException;
 use AndKom\Bitcoin\Blockchain\Network\Bitcoin;
 
 /**
@@ -105,7 +106,7 @@ class ScriptPubKey extends Script
     /**
      * @param Bitcoin|null $network
      * @return string
-     * @throws Exception
+     * @throws ScriptException
      * @throws \Exception
      * @throws \BitWasp\Bech32\Exception\Bech32Exception
      */
@@ -114,7 +115,7 @@ class ScriptPubKey extends Script
         try {
             $operations = $this->parse();
         } catch (\Exception $exception) {
-            throw new Exception('Unable to decode output address (script parse error).');
+            throw new ScriptException('Unable to decode output address (script parse error).');
         }
 
         $addressSerializer = new AddressSerializer($network);
@@ -140,13 +141,13 @@ class ScriptPubKey extends Script
         }
 
         if ($this->isMultisig()) {
-            throw new Exception('Unable to decode output address (multisig).');
+            throw new ScriptException('Unable to decode output address (multisig).');
         }
 
         if ($this->isReturn()) {
-            throw new Exception('Unable to decode output address (OP_RETURN).');
+            throw new ScriptException('Unable to decode output address (OP_RETURN).');
         }
 
-        throw new Exception('Unable to decode output address.');
+        throw new ScriptException('Unable to decode output address.');
     }
 }

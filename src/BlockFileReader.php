@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace AndKom\Bitcoin\Blockchain;
 
 use AndKom\BCDataStream\Reader;
+use AndKom\Bitcoin\Blockchain\Exception\IOException;
 
 /**
  * Class BlockFileReader
@@ -18,22 +19,22 @@ class BlockFileReader
      * @param $fp
      * @param int|null $pos
      * @return Block
-     * @throws Exception
+     * @throws IOException
      */
     public function readBlockFromFile($fp, int $pos = null): Block
     {
         if (!is_resource($fp)) {
-            throw new Exception('Invalid file resource.');
+            throw new IOException('Invalid file resource.');
         }
 
         if ($pos && fseek($fp, $pos - 4) === false) {
-            throw new Exception('Unable to seek block file.');
+            throw new IOException('Unable to seek block file.');
         }
 
         $size = fread($fp, 4);
 
         if ($size === false) {
-            throw new Exception('Unable to read block size.');
+            throw new IOException('Unable to read block size.');
         }
 
         $length = unpack('V', $size)[1];
@@ -41,7 +42,7 @@ class BlockFileReader
         $data = fread($fp, $length);
 
         if ($data === false) {
-            throw new Exception('Unable to read block data.');
+            throw new IOException('Unable to read block data.');
         }
 
         return Block::parse(new Reader($data));
@@ -51,14 +52,14 @@ class BlockFileReader
      * @param string $file
      * @param int $pos
      * @return Block
-     * @throws Exception
+     * @throws IOException
      */
     public function readBlock(string $file, int $pos): Block
     {
         $fp = fopen($file, 'r');
 
         if (!$fp) {
-            throw new Exception("Unable to open block file '$file'.");
+            throw new IOException("Unable to open block file '$file'.");
         }
 
         $block = $this->readBlockFromFile($fp, $pos);
@@ -71,14 +72,14 @@ class BlockFileReader
     /**
      * @param string $file
      * @return \Generator
-     * @throws Exception
+     * @throws IOException
      */
     public function read(string $file): \Generator
     {
         $fp = fopen($file, 'r');
 
         if (!$fp) {
-            throw new Exception("Unable to open block file '$file'.");
+            throw new IOException("Unable to open block file '$file'.");
         }
 
         while (fread($fp, 4) == static::MAGIC) {

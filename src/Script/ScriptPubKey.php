@@ -116,14 +116,11 @@ class ScriptPubKey extends Script
      */
     public function isMultisig(): bool
     {
-        $sigs = ord($this->data[0]);
-        $keys = ord($this->data[-2]);
-
         // check pattern
         if (!($this->size >= 37 &&
-            $sigs >= Opcodes::OP_1 && $sigs <= Opcodes::OP_16 &&
-            $keys >= Opcodes::OP_1 && $keys <= Opcodes::OP_16 &&
-            $keys >= $sigs &&
+            ord($this->data[0]) >= Opcodes::OP_1 && ord($this->data[0]) <= Opcodes::OP_16 &&
+            ord($this->data[-2]) >= Opcodes::OP_1 && ord($this->data[-2]) <= Opcodes::OP_16 &&
+            ord($this->data[-2]) >= ord($this->data[0]) &&
             ord($this->data[-1]) == Opcodes::OP_CHECKMULTISIG)) {
             return false;
         }
@@ -135,7 +132,7 @@ class ScriptPubKey extends Script
             $i += $size + 1;
         }
 
-        return $k > 0 && $keys - Opcodes::OP_1 + 1 == $j;
+        return $k > 0 && ord($this->data[-2]) - Opcodes::OP_1 + 1 == $j;
     }
 
     /**
@@ -144,10 +141,8 @@ class ScriptPubKey extends Script
      */
     public function isPayToWitnessPubKeyHash(): bool
     {
-        $version = ord($this->data[0]);
-
         return $this->size == 22 &&
-            $version >= Opcodes::OP_0 && $version <= Opcodes::OP_16 &&
+            ord($this->data[0]) >= Opcodes::OP_0 && ord($this->data[0]) <= Opcodes::OP_16 &&
             ord($this->data[1]) == 20;
     }
 
@@ -157,10 +152,8 @@ class ScriptPubKey extends Script
      */
     public function isPayToWitnessScriptHash(): bool
     {
-        $version = ord($this->data[0]);
-
         return $this->size == 34 &&
-            $version >= Opcodes::OP_0 && $version <= Opcodes::OP_16 &&
+            ord($this->data[0]) >= Opcodes::OP_0 && ord($this->data[0]) <= Opcodes::OP_16 &&
             ord($this->data[1]) == 32;
     }
 
@@ -191,7 +184,7 @@ class ScriptPubKey extends Script
             }
 
             if (!PublicKey::isFullyValid($pubKey)) {
-                throw new ScriptException('Invalid public key.');
+                throw new ScriptException('Unable to decode output address (invalid public key).');
             }
 
             return $addressSerializer->getPayToPubKey($pubKey);
@@ -206,21 +199,21 @@ class ScriptPubKey extends Script
         }
 
         if ($this->isMultisig()) {
-            throw new ScriptException('Unable to decode output script (multisig).');
+            throw new ScriptException('Unable to decode output address (multisig).');
         }
 
         if ($this->isReturn()) {
-            throw new ScriptException('Unable to decode output script (OP_RETURN).');
+            throw new ScriptException('Unable to decode output address (OP_RETURN).');
         }
 
         if ($this->isEmpty()) {
-            throw new ScriptException('Unable to decode output script (empty).');
+            throw new ScriptException('Unable to decode output address (empty).');
         }
 
         if ($this->isPayToPubKeyHashAlt()) {
             return $addressSerializer->getPayToPubKeyHash(substr($this->data, 4, 20));
         }
 
-        throw new ScriptException('Unable to decode output script.');
+        throw new ScriptException('Unable to decode output address.');
     }
 }

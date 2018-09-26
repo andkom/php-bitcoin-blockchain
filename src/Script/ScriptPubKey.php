@@ -99,12 +99,12 @@ class ScriptPubKey extends Script
      */
     public function isMultisig(): bool
     {
-        $keys = ord($this->data[0]);
-        $sigs = ord($this->data[-2]);
+        $sigs = ord($this->data[0]);
+        $keys = ord($this->data[-2]);
 
         if (!($this->size >= 24 &&
+            $sigs >= Opcodes::OP_1 && $sigs <= Opcodes::OP_16 &&
             $keys >= Opcodes::OP_1 && $keys <= Opcodes::OP_16 &&
-            $sigs && $sigs <= Opcodes::OP_16 &&
             $keys >= $sigs &&
             ord($this->data[-1]) == Opcodes::OP_CHECKMULTISIG)) {
             return false;
@@ -154,6 +154,14 @@ class ScriptPubKey extends Script
     {
         $addressSerializer = new AddressSerializer($network);
 
+        if ($this->isPayToPubKeyHash()) {
+            return $addressSerializer->getPayToPubKeyHash(substr($this->data, 3, 20));
+        }
+
+        if ($this->isPayToScriptHash()) {
+            return $addressSerializer->getPayToScriptHash(substr($this->data, 2, 20));
+        }
+
         if ($this->isPayToPubKey()) {
             if ($this->size == 35) {
                 $pubKey = substr($this->data, 1, 33);
@@ -168,24 +176,28 @@ class ScriptPubKey extends Script
             return $addressSerializer->getPayToPubKey($pubKey);
         }
 
-        if ($this->isPayToPubKeyHash()) {
-            return $addressSerializer->getPayToPubKeyHash(substr($this->data, 3, 20));
-        }
-
-        if ($this->isPayToPubKeyHashAlt()) {
-            return $addressSerializer->getPayToPubKeyHash(substr($this->data, 4, 20));
-        }
-
-        if ($this->isPayToScriptHash()) {
-            return $addressSerializer->getPayToScriptHash(substr($this->data, 2, 20));
-        }
-
         if ($this->isPayToWitnessPubKeyHash()) {
             return $addressSerializer->getPayToWitnessPubKeyHash(substr($this->data, 2, 20));
         }
 
         if ($this->isPayToWitnessScriptHash()) {
             return $addressSerializer->getPayToWitnessScriptHash(substr($this->data, 2, 32));
+        }
+
+        if ($this->isMultisig()) {
+            throw new ScriptException('Unable to decode output script (multisig).');
+        }
+
+        if ($this->isReturn()) {
+            throw new ScriptException('Unable to decode output script (OP_RETURN).');
+        }
+
+        if ($this->isEmpty()) {
+            throw new ScriptException('Unable to decode output script (empty).');
+        }
+
+        if ($this->isPayToPubKeyHashAlt()) {
+            return $addressSerializer->getPayToPubKeyHash(substr($this->data, 4, 20));
         }
 
         throw new ScriptException('Unable to decode output script.');

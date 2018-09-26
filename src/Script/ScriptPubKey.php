@@ -16,6 +16,7 @@ use AndKom\Bitcoin\Blockchain\Serializer\AddressSerializer;
 class ScriptPubKey extends Script
 {
     /**
+     * ScriptPubKey: OP_RETURN ...
      * @return bool
      */
     public function isReturn(): bool
@@ -24,6 +25,7 @@ class ScriptPubKey extends Script
     }
 
     /**
+     * ScriptPubKey: (empty)
      * @return bool
      */
     public function isEmpty(): bool
@@ -53,6 +55,9 @@ class ScriptPubKey extends Script
     }
 
     /**
+     * ScriptPubKey: OP_PUSHDATA(33) [0x02] [pubkey compressed] OP_CHECKSIG
+     * ScriptPubKey: OP_PUSHDATA(33) [0x03] [pubkey compressed] OP_CHECKSIG
+     * ScriptPubKey: OP_PUSHDATA(65) [0x04] [pubkey] OP_CHECKSIG
      * @return bool
      */
     public function isPayToPubKey(): bool
@@ -64,6 +69,7 @@ class ScriptPubKey extends Script
     }
 
     /**
+     * ScriptPubKey: OP_DUP OP_HASH160 OP_PUSHDATA(20) [pubkey hash] OP_EQUALVERIFY OP_CHECKSIG
      * @return bool
      */
     public function isPayToPubKeyHash(): bool
@@ -77,7 +83,8 @@ class ScriptPubKey extends Script
     }
 
     /**
-     * handle output of TX 059787f0673ab2c00b8f2f9810fdd14b0cd6a3034cc44dc30de124f606d3670a
+     * Handle output of TX 059787f0673ab2c00b8f2f9810fdd14b0cd6a3034cc44dc30de124f606d3670a
+     * ScriptPubKey: OP_DUP OP_HASH160 OP_PUSHDATA1 [pubkey hash] OP_EQUALVERIFY OP_CHECKSIG
      * @return bool
      */
     public function isPayToPubKeyHashAlt(): bool
@@ -92,6 +99,7 @@ class ScriptPubKey extends Script
     }
 
     /**
+     * ScriptPubKey: OP_HASH160 PUSHDATA(20) [script hash] OP_EQUAL
      * @return bool
      */
     public function isPayToScriptHash(): bool
@@ -103,6 +111,7 @@ class ScriptPubKey extends Script
     }
 
     /**
+     * ScriptPubKey: [num sigs] [...pub keys..] [num pub keys] OP_CHECKMULTISIG
      * @return bool
      */
     public function isMultisig(): bool
@@ -110,6 +119,7 @@ class ScriptPubKey extends Script
         $sigs = ord($this->data[0]);
         $keys = ord($this->data[-2]);
 
+        // check pattern
         if (!($this->size >= 37 &&
             $sigs >= Opcodes::OP_1 && $sigs <= Opcodes::OP_16 &&
             $keys >= Opcodes::OP_1 && $keys <= Opcodes::OP_16 &&
@@ -118,20 +128,18 @@ class ScriptPubKey extends Script
             return false;
         }
 
-        for ($i = 1, $k = 0; $i < $this->size - 2; $k++) {
+        // check valid keys
+        for ($i = 1, $j = $k = 0; $i < $this->size - 2; $j++) {
             $size = ord($this->data[$i]);
-
-            if (!$this->isPubKey($size, $this->data[$i + 1])) {
-                return false;
-            }
-
+            $k += $this->isPubKey($size, $this->data[$i + 1]);
             $i += $size + 1;
         }
 
-        return $keys - Opcodes::OP_1 + 1 == $k;
+        return $k > 0 && $keys - Opcodes::OP_1 + 1 == $j;
     }
 
     /**
+     * ScriptPubKey: [version] OP_PUSHDATA(20) [pubkey hash]
      * @return bool
      */
     public function isPayToWitnessPubKeyHash(): bool
@@ -144,6 +152,7 @@ class ScriptPubKey extends Script
     }
 
     /**
+     * ScriptPubKey: [version] OP_PUSHDATA(32) [script hash]
      * @return bool
      */
     public function isPayToWitnessScriptHash(): bool

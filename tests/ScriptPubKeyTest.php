@@ -93,14 +93,12 @@ class ScriptPubKeyTest extends TestCase
     // [numsigs] [...pubkeys...] [numpubkeys] OP_CHECKMULTISIG
     public function testParseMultisig()
     {
-        $hex = '52'; // 2
-        $hex .= '14'; // 20
-        $hex .= '91b24bf9f5288532960ac687abb035127b1d28a5'; // pubkey hash
-        $hex .= '14'; // 20
-        $hex .= 'd6c8e828c1eca1bba065e1b83e1dc2a36e387a42'; // pubkey hash
-        $hex .= '14'; // 20
-        $hex .= 'ec7eced2c57ed1292bc4eb9bfd13c9f7603bc338'; // pubkey hash
-        $hex .= '53'; // 3
+        $hex = '51'; // 1
+        $hex .= '21'; // 33
+        $hex .= '035b219535a5e9238bccc25c71ce4fddf024f5d9b452887225d23057b870d444b9'; // pubkey
+        $hex .= '41'; // 65
+        $hex .= '0479be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798483ada7726a3c4655da4fbfc0e1108a8fd17b448a68554199c47d08ffb10d4b8'; // pubkey
+        $hex .= '52'; // 2
         $hex .= 'ae'; // OP_CHECKMULTISIG
 
         $script = new ScriptPubKey(hex2bin($hex));

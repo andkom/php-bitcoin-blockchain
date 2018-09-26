@@ -32,27 +32,35 @@ class ScriptPubKey extends Script
     }
 
     /**
+     * @param int $size
+     * @param string $prefix
      * @return bool
      */
-    public function isPayToPubKey(): bool
+    protected function isPubKey(int $size, string $prefix): bool
     {
-        // compressed pubkey
-        if ($this->size == PublicKey::LENGTH_COMPRESSED + 2 &&
-            ord($this->data[0]) == PublicKey::LENGTH_COMPRESSED &&
-            ($this->data[1] == PublicKey::PREFIX_COMPRESSED_EVEN || $this->data[1] == PublicKey::PREFIX_COMPRESSED_ODD) &&
-            ord($this->data[-1]) == Opcodes::OP_CHECKSIG) {
+        if ($size == PublicKey::LENGTH_COMPRESSED &&
+            ($prefix == PublicKey::PREFIX_COMPRESSED_EVEN ||
+                $prefix == PublicKey::PREFIX_COMPRESSED_ODD)) {
             return true;
         }
 
-        // uncompressed pubkey
-        if ($this->size == PublicKey::LENGTH_UNCOMPRESSED + 2 &&
-            ord($this->data[0]) == PublicKey::LENGTH_UNCOMPRESSED &&
-            $this->data[1] == PublicKey::PREFIX_UNCOMPRESSED &&
-            ord($this->data[-1]) == Opcodes::OP_CHECKSIG) {
+        if ($size == PublicKey::LENGTH_UNCOMPRESSED &&
+            $prefix == PublicKey::PREFIX_UNCOMPRESSED) {
             return true;
         }
 
         return false;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isPayToPubKey(): bool
+    {
+        return (($this->size == PublicKey::LENGTH_COMPRESSED + 2 ||
+                $this->size == PublicKey::LENGTH_UNCOMPRESSED + 2) &&
+            $this->isPubKey(ord($this->data[0]), $this->data[1]) &&
+            ord($this->data[-1]) == Opcodes::OP_CHECKSIG);
     }
 
     /**
@@ -102,7 +110,7 @@ class ScriptPubKey extends Script
         $sigs = ord($this->data[0]);
         $keys = ord($this->data[-2]);
 
-        if (!($this->size >= 24 &&
+        if (!($this->size >= 37 &&
             $sigs >= Opcodes::OP_1 && $sigs <= Opcodes::OP_16 &&
             $keys >= Opcodes::OP_1 && $keys <= Opcodes::OP_16 &&
             $keys >= $sigs &&
@@ -110,10 +118,14 @@ class ScriptPubKey extends Script
             return false;
         }
 
-        for ($i = 1, $k = 0; $i < $this->size - 2; $i += 21, $k++) {
-            if (ord($this->data[$i]) != 20) {
+        for ($i = 1, $k = 0; $i < $this->size - 2; $k++) {
+            $size = ord($this->data[$i]);
+
+            if (!$this->isPubKey($size, $this->data[$i + 1])) {
                 return false;
             }
+
+            $i += $size + 1;
         }
 
         return $keys - Opcodes::OP_1 + 1 == $k;

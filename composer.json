@@ -15,8 +15,8 @@
   ],
   "require": {
     "php": "^7.1",
-    "ext-gmp": "^7.1",
-    "ext-leveldb": "^0.2.1",
+    "ext-gmp": "*",
+    "ext-leveldb": "*",
     "stephenhill/base58": "^1.1",
     "bitwasp/bech32": "^0.0.1",
     "andkom/php-bcdatastream": "^1.1",

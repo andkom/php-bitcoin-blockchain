@@ -6,7 +6,7 @@ $dataDir = getenv('HOME') . '/Library/Application Support/Bitcoin';
 $blocksDir = "$dataDir/blocks";
 $blockFile = "$blocksDir/blk00001.dat";
 
-$reader = new \AndKom\Bitcoin\Blockchain\BlockFileReader();
+$reader = new \AndKom\Bitcoin\Blockchain\Reader\BlockFileReader();
 
 foreach ($reader->read($blockFile) as $block) {
     foreach ($block->transactions as $tx) {

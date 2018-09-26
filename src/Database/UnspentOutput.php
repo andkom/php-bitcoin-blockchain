@@ -141,7 +141,7 @@ class UnspentOutput
                 try {
                     $decompressed = PublicKey::parse($compressed)->decompress()->serialize();
                 } catch (\Exception $exception) {
-                    throw new ScriptException('Unable to decompress public key.');
+                    throw new ScriptException('Unable to decompress public key.', 0, $exception);
                 }
                 $script = chr(65);
                 $script .= $decompressed;

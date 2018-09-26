@@ -40,6 +40,10 @@ class AddressSerializer
      */
     public function hashToAddress(string $hash160, int $prefix): string
     {
+        if (strlen($hash160) != 20) {
+            throw new \InvalidArgumentException('Invalid hash160 size.');
+        }
+
         $hash160 = chr($prefix) . $hash160;
         $checksum = substr(Utils::hash256($hash160, true), 0, 4);
         $address = $hash160 . $checksum;
@@ -54,6 +58,10 @@ class AddressSerializer
      */
     public function pubKeyToAddress(string $pubKey, int $prefix): string
     {
+        if (!PublicKey::parse($pubKey)->isValid()) {
+            throw new \InvalidArgumentException('Invalid public key.');
+        }
+
         return $this->hashToAddress(Utils::hash160($pubKey, true), $prefix);
     }
 

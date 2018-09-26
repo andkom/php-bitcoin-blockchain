@@ -84,6 +84,20 @@ class PublicKey
     }
 
     /**
+     * @return bool
+     */
+    public function isValid(): bool
+    {
+        try {
+            $this->getEccPublicKey();
+        } catch (\Exception $exception) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
      * @return PublicKey
      * @throws PublicKeyException
      */
@@ -133,7 +147,7 @@ class PublicKey
             $key = $this;
         }
 
-        $point = $curve->getPoint($key->getX(), $this->getY());
+        $point = $curve->getPoint($key->getX(), $key->getY());
 
         return new \Mdanter\Ecc\Crypto\Key\PublicKey($adapter, $generator, $point);
     }

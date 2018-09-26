@@ -76,4 +76,12 @@ class PublicKeyTest extends TestCase
 
         $this->assertEquals($pk->serialize(), hex2bin($key));
     }
+
+    public function testValid()
+    {
+        $key = '040a464653204c756b652d4a72206c656176652074686520626c6f636b636861696e20616c6f6e65210a4f682c20616e6420676f642069736e2774207265616c0a';
+
+        $pk = PublicKey::parse(hex2bin($key));
+        $this->assertFalse($pk->isValid());
+    }
 }

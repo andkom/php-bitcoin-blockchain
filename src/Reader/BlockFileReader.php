@@ -2,14 +2,15 @@
 
 declare(strict_types=1);
 
-namespace AndKom\Bitcoin\Blockchain;
+namespace AndKom\Bitcoin\Blockchain\Reader;
 
 use AndKom\BCDataStream\Reader;
-use AndKom\Bitcoin\Blockchain\Exception\IOException;
+use AndKom\Bitcoin\Blockchain\Block\Block;
+use AndKom\Bitcoin\Blockchain\Exception\DatabaseException;
 
 /**
  * Class BlockFileReader
- * @package AndKom\Bitcoin\Blockchain
+ * @package AndKom\Bitcoin\Blockchain\Reader
  */
 class BlockFileReader
 {
@@ -19,22 +20,22 @@ class BlockFileReader
      * @param $fp
      * @param int|null $pos
      * @return Block
-     * @throws IOException
+     * @throws DatabaseException
      */
     public function readBlockFromFile($fp, int $pos = null): Block
     {
         if (!is_resource($fp)) {
-            throw new IOException('Invalid file resource.');
+            throw new DatabaseException('Invalid file resource.');
         }
 
         if ($pos && fseek($fp, $pos - 4) === false) {
-            throw new IOException('Unable to seek block file.');
+            throw new DatabaseException('Unable to seek block file.');
         }
 
         $size = fread($fp, 4);
 
         if ($size === false) {
-            throw new IOException('Unable to read block size.');
+            throw new DatabaseException('Unable to read block size.');
         }
 
         $length = unpack('V', $size)[1];
@@ -42,7 +43,7 @@ class BlockFileReader
         $data = fread($fp, $length);
 
         if ($data === false) {
-            throw new IOException('Unable to read block data.');
+            throw new DatabaseException('Unable to read block data.');
         }
 
         return Block::parse(new Reader($data));
@@ -52,14 +53,14 @@ class BlockFileReader
      * @param string $file
      * @param int $pos
      * @return Block
-     * @throws IOException
+     * @throws DatabaseException
      */
     public function readBlock(string $file, int $pos): Block
     {
         $fp = fopen($file, 'r');
 
         if (!$fp) {
-            throw new IOException("Unable to open block file '$file'.");
+            throw new DatabaseException("Unable to open block file '$file'.");
         }
 
         $block = $this->readBlockFromFile($fp, $pos);
@@ -72,14 +73,14 @@ class BlockFileReader
     /**
      * @param string $file
      * @return \Generator
-     * @throws IOException
+     * @throws DatabaseException
      */
     public function read(string $file): \Generator
     {
         $fp = fopen($file, 'r');
 
         if (!$fp) {
-            throw new IOException("Unable to open block file '$file'.");
+            throw new DatabaseException("Unable to open block file '$file'.");
         }
 
         while (fread($fp, 4) == static::MAGIC) {

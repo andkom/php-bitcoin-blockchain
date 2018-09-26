@@ -2,31 +2,35 @@
 
 declare(strict_types=1);
 
-namespace AndKom\Bitcoin\Blockchain;
+namespace AndKom\Bitcoin\Blockchain\Serializer;
 
-use AndKom\Bitcoin\Blockchain\Network\Bitcoin;
+use AndKom\Bitcoin\Blockchain\Crypto\PublicKey;
+use AndKom\Bitcoin\Blockchain\Network\NetworkFactory;
+use AndKom\Bitcoin\Blockchain\Network\NetworkInterface;
+use AndKom\Bitcoin\Blockchain\Utils;
 use function BitWasp\Bech32\encodeSegwit;
+use BitWasp\Bech32\Exception\Bech32Exception;
 use StephenHill\Base58;
 
 /**
  * Class AddressSerializer
- * @package AndKom\Bitcoin\Blockchain
+ * @package AndKom\Bitcoin\Blockchain\Serializer
  */
 class AddressSerializer
 {
     /**
-     * @var Bitcoin
+     * @var NetworkInterface
      */
     protected $network;
 
     /**
      * AddressSerializer constructor.
-     * @param Bitcoin $network
+     * @param NetworkInterface $network
      */
-    public function __construct(Bitcoin $network = null)
+    public function __construct(NetworkInterface $network = null)
     {
         if (!$network) {
-            $network = new Bitcoin();
+            $network = NetworkFactory::getDefault();
         }
 
         $this->network = $network;
@@ -47,6 +51,7 @@ class AddressSerializer
         $hash160 = chr($prefix) . $hash160;
         $checksum = substr(Utils::hash256($hash160, true), 0, 4);
         $address = $hash160 . $checksum;
+
         return (new Base58())->encode($address);
     }
 
@@ -58,8 +63,8 @@ class AddressSerializer
      */
     public function pubKeyToAddress(string $pubKey, int $prefix): string
     {
-        if (!PublicKey::parse($pubKey)->isValid()) {
-            throw new \InvalidArgumentException('Invalid public key.');
+        if (!PublicKey::isValid($pubKey)) {
+            throw new \InvalidArgumentException('Invalid public key format.');
         }
 
         return $this->hashToAddress(Utils::hash160($pubKey, true), $prefix);
@@ -72,7 +77,7 @@ class AddressSerializer
      */
     public function getPayToPubKey(string $pubKey): string
     {
-        return $this->pubKeyToAddress($pubKey, $this->network::P2PKH_PREFIX);
+        return $this->pubKeyToAddress($pubKey, $this->network->getPayToPubKeyPrefix());
     }
 
     /**
@@ -82,7 +87,7 @@ class AddressSerializer
      */
     public function getPayToPubKeyHash(string $pubKeyHash): string
     {
-        return $this->hashToAddress($pubKeyHash, $this->network::P2PKH_PREFIX);
+        return $this->hashToAddress($pubKeyHash, $this->network->getPayToPubKeyHashPrefix());
     }
 
     /**
@@ -92,28 +97,28 @@ class AddressSerializer
      */
     public function getPayToScriptHash(string $scriptHash): string
     {
-        return $this->hashToAddress($scriptHash, $this->network::P2SH_PREFIX);
+        return $this->hashToAddress($scriptHash, $this->network->getPayToScriptHashPrefix());
     }
 
     /**
      * @param string $pubKeyHash
      * @param int $version
      * @return string
-     * @throws \BitWasp\Bech32\Exception\Bech32Exception
+     * @throws Bech32Exception
      */
     public function getPayToWitnessPubKeyHash(string $pubKeyHash, int $version = 0): string
     {
-        return encodeSegwit($this->network::BECH32_HRP, $version, $pubKeyHash);
+        return encodeSegwit($this->network->getBech32HumanReadablePart(), $version, $pubKeyHash);
     }
 
     /**
      * @param string $scriptHash
      * @param int $version
      * @return string
-     * @throws \BitWasp\Bech32\Exception\Bech32Exception
+     * @throws Bech32Exception
      */
     public function getPayToWitnessScriptHash(string $scriptHash, int $version = 0): string
     {
-        return encodeSegwit($this->network::BECH32_HRP, $version, $scriptHash);
+        return encodeSegwit($this->network->getBech32HumanReadablePart(), $version, $scriptHash);
     }
 }

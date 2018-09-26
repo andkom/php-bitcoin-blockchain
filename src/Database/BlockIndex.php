@@ -2,15 +2,15 @@
 
 declare(strict_types=1);
 
-namespace AndKom\Bitcoin\Blockchain;
+namespace AndKom\Bitcoin\Blockchain\Database;
 
-use AndKom\Bitcoin\Blockchain\Exception\Exception;
+use AndKom\Bitcoin\Blockchain\Exception\DatabaseException;
 
 /**
- * Class Index
- * @package AndKom\Bitcoin\Blockchain
+ * Class BlockIndex
+ * @package AndKom\Bitcoin\Blockchain\Database
  */
-class Index
+class BlockIndex
 {
     /**
      * @var array
@@ -35,12 +35,12 @@ class Index
     /**
      * @param string $hash
      * @return BlockInfo
-     * @throws Exception
+     * @throws DatabaseException
      */
     public function getBlockInfoByHash(string $hash): BlockInfo
     {
         if (!isset($this->blockIndex[$hash])) {
-            throw new Exception("Unknown block hash.");
+            throw new DatabaseException('Unknown block hash.');
         }
 
         return $this->blockIndex[$hash];
@@ -49,12 +49,12 @@ class Index
     /**
      * @param int $height
      * @return BlockInfo
-     * @throws Exception
+     * @throws DatabaseException
      */
     public function getBlockInfoByHeight(int $height): BlockInfo
     {
         if (!isset($this->heightIndex[$height])) {
-            throw new Exception("Unknown block height.");
+            throw new DatabaseException('Unknown block height.');
         }
 
         return $this->getBlockInfoByHash($this->heightIndex[$height]);
@@ -63,12 +63,12 @@ class Index
     /**
      * @param int $number
      * @return FileInfo
-     * @throws Exception
+     * @throws DatabaseException
      */
     public function getFileInfo(int $number): FileInfo
     {
         if (!isset($this->fileIndex[$number])) {
-            throw new Exception("Unknown file number.");
+            throw new DatabaseException('Unknown file number.');
         }
 
         return $this->fileIndex[$number];
@@ -76,12 +76,12 @@ class Index
 
     /**
      * @return int
-     * @throws Exception
+     * @throws DatabaseException
      */
     public function getLastFile(): int
     {
         if (is_null($this->lastFile)) {
-            throw new Exception('Unknown last file.');
+            throw new DatabaseException('Unknown last file.');
         }
 
         return $this->lastFile;

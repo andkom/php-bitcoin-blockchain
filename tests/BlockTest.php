@@ -6,7 +6,7 @@ namespace AndKom\Bitcoin\Blockchain\Tests;
 
 use AndKom\BCDataStream\Reader;
 use AndKom\BCDataStream\Writer;
-use AndKom\Bitcoin\Blockchain\Block;
+use AndKom\Bitcoin\Blockchain\Block\Block;
 use PHPUnit\Framework\TestCase;
 
 class BlockTest extends TestCase

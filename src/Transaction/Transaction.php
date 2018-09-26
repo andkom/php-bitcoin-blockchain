@@ -2,14 +2,15 @@
 
 declare(strict_types=1);
 
-namespace AndKom\Bitcoin\Blockchain;
+namespace AndKom\Bitcoin\Blockchain\Transaction;
 
 use AndKom\BCDataStream\Reader;
 use AndKom\BCDataStream\Writer;
+use AndKom\Bitcoin\Blockchain\Utils;
 
 /**
  * Class Transaction
- * @package AndKom\Bitcoin\Blockchain
+ * @package AndKom\Bitcoin\Blockchain\Transaction
  */
 class Transaction
 {
@@ -54,7 +55,7 @@ class Transaction
      */
     static public function parse(Reader $stream): self
     {
-        $tx = new self;
+        $tx = new static;
         $tx->version = $stream->readUInt32();
 
         $tx->isSegwit = $stream->read(2) == "\x00\x01";

@@ -2,14 +2,15 @@
 
 declare(strict_types=1);
 
-namespace AndKom\Bitcoin\Blockchain;
+namespace AndKom\Bitcoin\Blockchain\Database;
 
 use AndKom\BCDataStream\Reader;
-use AndKom\Bitcoin\Blockchain\Exception\Exception;
+use AndKom\Bitcoin\Blockchain\Block\Header;
+use AndKom\Bitcoin\Blockchain\Exception\DatabaseException;
 
 /**
  * Class BlockInfo
- * @package AndKom\Bitcoin\Blockchain
+ * @package AndKom\Bitcoin\Blockchain\Database
  */
 class BlockInfo
 {
@@ -77,7 +78,7 @@ class BlockInfo
      */
     static public function parse(Reader $reader): self
     {
-        $block = new self;
+        $block = new static;
         $block->version = $reader->readVarInt();
         $block->height = $reader->readVarInt();
         $block->status = $reader->readVarInt();
@@ -102,12 +103,12 @@ class BlockInfo
 
     /**
      * @return string
-     * @throws Exception
+     * @throws DatabaseException
      */
     public function getFileName(): string
     {
         if (is_null($this->file)) {
-            throw new Exception('Unknown block file number.');
+            throw new DatabaseException('Unknown block file number.');
         }
 
         return sprintf('blk%05d.dat', $this->file);

@@ -2,14 +2,15 @@
 
 declare(strict_types=1);
 
-namespace AndKom\Bitcoin\Blockchain;
+namespace AndKom\Bitcoin\Blockchain\Transaction;
 
 use AndKom\BCDataStream\Reader;
 use AndKom\BCDataStream\Writer;
+use AndKom\Bitcoin\Blockchain\Script\ScriptPubKey;
 
 /**
  * Class TransactionOutput
- * @package AndKom\Bitcoin\Blockchain
+ * @package AndKom\Bitcoin\Blockchain\Transaction
  */
 class Output
 {
@@ -19,7 +20,7 @@ class Output
     public $value;
 
     /**
-     * @var Script
+     * @var ScriptPubKey
      */
     public $scriptPubKey;
 
@@ -29,7 +30,7 @@ class Output
      */
     static public function parse(Reader $stream): self
     {
-        $out = new self;
+        $out = new static;
         $out->value = $stream->readUInt64();
         $out->scriptPubKey = new ScriptPubKey($stream->readString());
         return $out;

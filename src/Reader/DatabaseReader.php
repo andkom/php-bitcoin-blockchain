@@ -2,16 +2,18 @@
 
 declare(strict_types=1);
 
-namespace AndKom\Bitcoin\Blockchain;
+namespace AndKom\Bitcoin\Blockchain\Reader;
 
-use AndKom\Bitcoin\Blockchain\Exception\Exception;
-use AndKom\Bitcoin\Blockchain\Exception\IOException;
+use AndKom\Bitcoin\Blockchain\Block\Block;
+use AndKom\Bitcoin\Blockchain\Database\BlockIndex;
+use AndKom\Bitcoin\Blockchain\Database\BlockInfo;
+use AndKom\Bitcoin\Blockchain\Exception\DatabaseException;
 
 /**
- * Class BlockchainReader
- * @package AndKom\Bitcoin\Blockchain
+ * Class DatabaseReader
+ * @package AndKom\Bitcoin\Blockchain\Reader
  */
-class BlockchainReader
+class DatabaseReader
 {
     /**
      * @var
@@ -34,7 +36,7 @@ class BlockchainReader
     protected $chainstateDir;
 
     /**
-     * @var Index
+     * @var BlockIndex
      */
     protected $index;
 
@@ -51,16 +53,17 @@ class BlockchainReader
     }
 
     /**
-     * @return Index
-     * @throws Exception
+     * @return BlockIndex
+     * @throws DatabaseException
+     * @throws \LevelDBException
      */
-    public function getIndex(): Index
+    public function getIndex(): BlockIndex
     {
         if ($this->index) {
             return $this->index;
         }
 
-        $reader = new IndexReader($this->blockIndexDir);
+        $reader = new BlockIndexReader($this->blockIndexDir);
 
         return $this->index = $reader->read();
     }
@@ -76,8 +79,7 @@ class BlockchainReader
     /**
      * @param BlockInfo $blockInfo
      * @return Block
-     * @throws Exception
-     * @throws IOException
+     * @throws DatabaseException
      */
     public function getBlockByInfo(BlockInfo $blockInfo): Block
     {
@@ -89,8 +91,8 @@ class BlockchainReader
     /**
      * @param string $hash
      * @return Block
-     * @throws Exception
-     * @throws IOException
+     * @throws DatabaseException
+     * @throws \LevelDBException
      */
     public function getBlockByHash(string $hash): Block
     {
@@ -100,8 +102,8 @@ class BlockchainReader
     /**
      * @param int $height
      * @return Block
-     * @throws Exception
-     * @throws IOException
+     * @throws DatabaseException
+     * @throws \LevelDBException
      */
     public function getBlockByHeight(int $height): Block
     {
@@ -111,9 +113,8 @@ class BlockchainReader
     /**
      * @param int|null $minHeight
      * @param int|null $maxHeight
-     * @throws Exception
-     * @throws IOException
      * @return \Generator
+     * @throws DatabaseException
      */
     public function readBlocks(int $minHeight = null, int $maxHeight = null): \Generator
     {
@@ -135,12 +136,12 @@ class BlockchainReader
 
     /**
      * @return \Generator
-     * @throws IOException
+     * @throws DatabaseException
      */
     public function readBlocksUnordered(): \Generator
     {
         if (!file_exists($this->blocksDir)) {
-            throw new IOException("Blocks dir '{$this->blocksDir}' not found.");
+            throw new DatabaseException("Blocks dir '{$this->blocksDir}' not found.");
         }
 
         $dir = dir($this->blocksDir);

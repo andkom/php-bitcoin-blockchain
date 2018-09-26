@@ -6,6 +6,7 @@ namespace AndKom\Bitcoin\Blockchain;
 
 use AndKom\BCDataStream\Reader;
 use AndKom\BCDataStream\Writer;
+use AndKom\Bitcoin\Blockchain\Transaction\Transaction;
 use PHPUnit\Framework\TestCase;
 
 class TransactionTest extends TestCase

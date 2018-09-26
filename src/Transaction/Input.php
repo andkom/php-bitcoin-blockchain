@@ -2,14 +2,15 @@
 
 declare(strict_types=1);
 
-namespace AndKom\Bitcoin\Blockchain;
+namespace AndKom\Bitcoin\Blockchain\Transaction;
 
 use AndKom\BCDataStream\Reader;
 use AndKom\BCDataStream\Writer;
+use AndKom\Bitcoin\Blockchain\Script\ScriptSig;
 
 /**
  * Class TransactionInput
- * @package AndKom\Bitcoin\Blockchain
+ * @package AndKom\Bitcoin\Blockchain\Transaction
  */
 class Input
 {
@@ -24,7 +25,7 @@ class Input
     public $prevTxOutIndex;
 
     /**
-     * @var Script
+     * @var ScriptSig
      */
     public $scriptSig;
 
@@ -44,7 +45,7 @@ class Input
      */
     static public function parse(Reader $stream): self
     {
-        $in = new self;
+        $in = new static;
         $in->prevTxHash = $stream->read(32);
         $in->prevTxOutIndex = $stream->readInt32();
         $in->scriptSig = new ScriptSig($stream->readString());

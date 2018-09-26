@@ -2,14 +2,15 @@
 
 declare(strict_types=1);
 
-namespace AndKom\Bitcoin\Blockchain;
+namespace AndKom\Bitcoin\Blockchain\Block;
 
 use AndKom\BCDataStream\Reader;
 use AndKom\BCDataStream\Writer;
+use AndKom\Bitcoin\Blockchain\Utils;
 
 /**
  * Class Header
- * @package AndKom\Bitcoin\Blockchain
+ * @package AndKom\Bitcoin\Blockchain\Block
  */
 class Header
 {
@@ -49,7 +50,7 @@ class Header
      */
     static public function parse(Reader $stream): self
     {
-        $header = new self;
+        $header = new static;
         $header->version = $stream->readUInt32();
         $header->prevBlockHash = $stream->read(32);
         $header->merkleRootHash = $stream->read(32);

@@ -2,14 +2,16 @@
 
 declare(strict_types=1);
 
-namespace AndKom\Bitcoin\Blockchain;
+namespace AndKom\Bitcoin\Blockchain\Script;
 
+use AndKom\Bitcoin\Blockchain\Crypto\PublicKey;
 use AndKom\Bitcoin\Blockchain\Exception\ScriptException;
-use AndKom\Bitcoin\Blockchain\Network\Bitcoin;
+use AndKom\Bitcoin\Blockchain\Network\NetworkInterface;
+use AndKom\Bitcoin\Blockchain\Serializer\AddressSerializer;
 
 /**
  * Class ScriptPubKey
- * @package AndKom\Bitcoin\Blockchain
+ * @package AndKom\Bitcoin\Blockchain\Script
  */
 class ScriptPubKey extends Script
 {
@@ -142,22 +144,28 @@ class ScriptPubKey extends Script
     }
 
     /**
-     * @param Bitcoin|null $network
+     * @param NetworkInterface $network
      * @return string
      * @throws ScriptException
      * @throws \Exception
      * @throws \BitWasp\Bech32\Exception\Bech32Exception
      */
-    public function getOutputAddress(Bitcoin $network = null): string
+    public function getOutputAddress(NetworkInterface $network = null): string
     {
         $addressSerializer = new AddressSerializer($network);
 
         if ($this->isPayToPubKey()) {
             if ($this->size == 35) {
-                return $addressSerializer->getPayToPubKey(substr($this->data, 1, 33));
+                $pubKey = substr($this->data, 1, 33);
             } elseif ($this->size == 67) {
-                return $addressSerializer->getPayToPubKey(substr($this->data, 1, 65));
+                $pubKey = substr($this->data, 1, 65);
             }
+
+            if (!PublicKey::isFullyValid($pubKey)) {
+                throw new ScriptException('Invalid public key.');
+            }
+
+            return $addressSerializer->getPayToPubKey($pubKey);
         }
 
         if ($this->isPayToPubKeyHash()) {
@@ -180,6 +188,6 @@ class ScriptPubKey extends Script
             return $addressSerializer->getPayToWitnessScriptHash(substr($this->data, 2, 32));
         }
 
-        throw new ScriptException('Unable to decode output address.');
+        throw new ScriptException('Unable to decode output script.');
     }
 }

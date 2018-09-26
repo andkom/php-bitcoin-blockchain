@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace AndKom\Bitcoin\Blockchain;
+namespace AndKom\Bitcoin\Blockchain\Script;
 
 /**
- * Class ScriptOperation
- * @package AndKom\Bitcoin\Blockchain
+ * Class Operation
+ * @package AndKom\Bitcoin\Blockchain\Script
  */
 class Operation
 {
@@ -39,18 +39,6 @@ class Operation
     }
 
     /**
-     * @return string
-     */
-    public function __toString(): string
-    {
-        try {
-            return $this->getHumanReadable();
-        } catch (\Exception $exception) {
-            return 'Script parse error.';
-        }
-    }
-
-    /**
      * @return bool
      */
     public function isPush(): bool
@@ -72,5 +60,13 @@ class Operation
         }
 
         return 'UNKNOWN(' . $this->code . ')';
+    }
+
+    /**
+     * @return string
+     */
+    public function __toString()
+    {
+        return $this->getHumanReadable();
     }
 }

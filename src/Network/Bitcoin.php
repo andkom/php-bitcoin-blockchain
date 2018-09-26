@@ -8,9 +8,37 @@ namespace AndKom\Bitcoin\Blockchain\Network;
  * Class Bitcoin
  * @package AndKom\Bitcoin\Blockchain\Network
  */
-class Bitcoin
+class Bitcoin implements NetworkInterface
 {
-    const P2PKH_PREFIX = 0x00;
-    const P2SH_PREFIX = 0x05;
-    const BECH32_HRP = 'bc';
+    /**
+     * @return int
+     */
+    public function getPayToPubKeyPrefix(): int
+    {
+        return 0x00;
+    }
+
+    /**
+     * @return int
+     */
+    public function getPayToPubKeyHashPrefix(): int
+    {
+        return 0x00;
+    }
+
+    /**
+     * @return int
+     */
+    public function getPayToScriptHashPrefix(): int
+    {
+        return 0x05;
+    }
+
+    /**
+     * @return string
+     */
+    public function getBech32HumanReadablePart(): string
+    {
+        return 'bc';
+    }
 }

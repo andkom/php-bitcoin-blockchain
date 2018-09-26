@@ -2,14 +2,16 @@
 
 declare(strict_types=1);
 
-namespace AndKom\Bitcoin\Blockchain;
+namespace AndKom\Bitcoin\Blockchain\Reader;
 
 use AndKom\BCDataStream\Reader;
-use AndKom\Bitcoin\Blockchain\Exception\Exception;
+use AndKom\Bitcoin\Blockchain\Database\UnspentOutput;
+use AndKom\Bitcoin\Blockchain\Exception\DatabaseException;
+use AndKom\Bitcoin\Blockchain\Utils;
 
 /**
  * Class ChainstateReader
- * @package AndKom\Bitcoin\Blockchain
+ * @package AndKom\Bitcoin\Blockchain\Reader
  */
 class ChainstateReader
 {
@@ -69,6 +71,7 @@ class ChainstateReader
     /**
      * @param \LevelDB $db
      * @return string
+     * @throws \LevelDBException
      */
     protected function getObfuscateKeyFromDb(\LevelDB $db): string
     {
@@ -84,6 +87,7 @@ class ChainstateReader
      * @param \LevelDB $db
      * @param string $value
      * @return string
+     * @throws \LevelDBException
      */
     protected function deobfuscateValue(\LevelDB $db, string $value): string
     {
@@ -96,7 +100,7 @@ class ChainstateReader
 
     /**
      * @return string
-     * @throws Exception
+     * @throws DatabaseException
      * @throws \LevelDBException
      */
     public function getBestBlock(): string
@@ -109,7 +113,7 @@ class ChainstateReader
         $this->closeDb();
 
         if (!$bestBlock) {
-            throw new Exception('Unable to get best block.');
+            throw new DatabaseException('Unable to get best block.');
         }
 
         return $bestBlock;
@@ -117,7 +121,7 @@ class ChainstateReader
 
     /**
      * @return string
-     * @throws Exception
+     * @throws DatabaseException
      * @throws \LevelDBException
      */
     public function getObfuscateKey(): string
@@ -129,7 +133,7 @@ class ChainstateReader
         $this->closeDb();
 
         if (!$obfuscateKey) {
-            throw new Exception('Unable to get obfuscate key.');
+            throw new DatabaseException('Unable to get obfuscate key.');
         }
 
         return $obfuscateKey;
@@ -137,13 +141,13 @@ class ChainstateReader
 
     /**
      * @return \Generator
-     * @throws Exception
+     * @throws DatabaseException
      * @throws \LevelDBException
      */
     public function read(): \Generator
     {
         if (!class_exists('\LevelDB')) {
-            throw new Exception('Extension leveldb is not installed.');
+            throw new DatabaseException('Extension leveldb is not installed.');
         }
 
         $db = new \LevelDB($this->chainstateDir);

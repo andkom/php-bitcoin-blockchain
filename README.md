@@ -26,28 +26,28 @@ composer require andkom/php-bitcoin-blockchain
 ### Examples
 
 ```php
-$blockchainReader = new BlockchainReader('/path/to/bitcoin');
+$databaseReader = new DatabaseReader('/path/to/bitcoin');
 
 // read ordered blocks
-foreach ($blockchainReader->readBlocks() as $block) {
+foreach ($databaseReader->readBlocks() as $block) {
 }
 
 // read unordered blocks
-foreach ($blockchainReader->readBlocksUnordered() as $block) {
+foreach ($databaseReader->readBlocksUnordered() as $block) {
 }
 
 // read UTXO 
-foreach ($blockchainReader->getChainState()->read() as $utxo) {
+foreach ($databaseReader->getChainstate()->read() as $utxo) {
 }
 
 // get block by hash
-$block = $blockchainReader->getBlockByHash('binary hash in little endian'); 
+$block = $databaseReader->getBlockByHash('binary hash in little endian'); 
 
 // get block by height
-$block = $blockchainReader->getBlockByHeight(12345);
+$block = $databaseReader->getBlockByHeight(12345);
 
 // get best block hash
-$hash = $blockchainReader->getChainstate()->getBestBlock();
+$hash = $databaseReader->getChainstate()->getBestBlock();
 ```
 
 See more examples in the examples dir.

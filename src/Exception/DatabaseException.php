@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace AndKom\Bitcoin\Blockchain\Exception;
 
 /**
- * Class ScriptException
+ * Class DatabaseException
  * @package AndKom\Bitcoin\Blockchain\Exception
  */
-class PublicKeyException extends Exception
+class DatabaseException extends Exception
 {
 }

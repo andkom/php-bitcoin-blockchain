@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace AndKom\Bitcoin\Blockchain;
+namespace AndKom\Bitcoin\Blockchain\Script;
 
 use AndKom\BCDataStream\Reader;
 
 /**
  * Class Script
- * @package AndKom\Bitcoin\Blockchain
+ * @package AndKom\Bitcoin\Blockchain\Script
  */
 class Script
 {
@@ -39,14 +39,6 @@ class Script
     /**
      * @return string
      */
-    public function __toString()
-    {
-        return $this->getHumanReadable();
-    }
-
-    /**
-     * @return string
-     */
     public function getData(): string
     {
         return $this->data;
@@ -65,7 +57,29 @@ class Script
     }
 
     /**
+     * @return string
+     * @throws \Exception
+     */
+    public function getHumanReadable(): string
+    {
+        return implode(' ', $this->parse());
+    }
+
+    /**
+     * @return string
+     */
+    public function __toString()
+    {
+        try {
+            return $this->getHumanReadable();
+        } catch (\Exception $exception) {
+            return $exception->getMessage();
+        }
+    }
+
+    /**
      * @return array
+     * @throws \Exception
      */
     public function parse(): array
     {
@@ -101,13 +115,5 @@ class Script
         }
 
         return $this->operations;
-    }
-
-    /**
-     * @return string
-     */
-    public function getHumanReadable(): string
-    {
-        return implode(' ', $this->parse());
     }
 }

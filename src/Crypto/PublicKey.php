@@ -1,13 +1,14 @@
 <?php
 
-namespace AndKom\Bitcoin\Blockchain;
+namespace AndKom\Bitcoin\Blockchain\Crypto;
 
-use AndKom\Bitcoin\Blockchain\Exception\PublicKeyException;
+use AndKom\Bitcoin\Blockchain\Exception\CryptoException;
+use AndKom\Bitcoin\Blockchain\Utils;
 use Mdanter\Ecc\EccFactory;
 
 /**
  * Class PublicKey
- * @package AndKom\Bitcoin\Blockchain
+ * @package AndKom\Bitcoin\Blockchain\Crypto
  */
 class PublicKey
 {
@@ -56,12 +57,12 @@ class PublicKey
 
     /**
      * @return \GMP
-     * @throws PublicKeyException
+     * @throws CryptoException
      */
     public function getY(): \GMP
     {
         if ($this->isCompressed()) {
-            throw new PublicKeyException("Compressed public key doesn't have Y coordinate.");
+            throw new CryptoException("Compressed public key doesn't have Y coordinate.");
         }
 
         return $this->y;
@@ -84,27 +85,13 @@ class PublicKey
     }
 
     /**
-     * @return bool
-     */
-    public function isValid(): bool
-    {
-        try {
-            $this->getEccPublicKey();
-        } catch (\Exception $exception) {
-            return false;
-        }
-
-        return true;
-    }
-
-    /**
      * @return PublicKey
-     * @throws PublicKeyException
+     * @throws CryptoException
      */
     public function compress(): self
     {
         if ($this->isCompressed()) {
-            throw new PublicKeyException('Public key is already compressed.');
+            throw new CryptoException('Public key is already compressed.');
         }
 
         $wasOdd = gmp_cmp(
@@ -117,12 +104,12 @@ class PublicKey
 
     /**
      * @return PublicKey
-     * @throws PublicKeyException
+     * @throws CryptoException
      */
     public function decompress(): self
     {
         if (!$this->isCompressed()) {
-            throw new PublicKeyException('Public key is already decompressed.');
+            throw new CryptoException('Public key is already decompressed.');
         }
 
         $curve = EccFactory::getSecgCurves()->generator256k1()->getCurve();
@@ -133,7 +120,7 @@ class PublicKey
 
     /**
      * @return \Mdanter\Ecc\Crypto\Key\PublicKey
-     * @throws PublicKeyException
+     * @throws CryptoException
      */
     public function getEccPublicKey(): \Mdanter\Ecc\Crypto\Key\PublicKey
     {
@@ -155,7 +142,7 @@ class PublicKey
     /**
      * @param string $data
      * @return PublicKey
-     * @throws PublicKeyException
+     * @throws CryptoException
      */
     static public function parse(string $data): self
     {
@@ -165,7 +152,7 @@ class PublicKey
             $prefix = $data[0];
 
             if ($prefix != static::PREFIX_COMPRESSED_ODD && $prefix != static::PREFIX_COMPRESSED_EVEN) {
-                throw new PublicKeyException('Invalid compressed public key prefix.');
+                throw new CryptoException('Invalid compressed public key prefix.');
             }
 
             $x = Utils::binToGmp(substr($data, 1, 32));
@@ -174,13 +161,13 @@ class PublicKey
             $prefix = $data[0];
 
             if ($prefix != static::PREFIX_UNCOMPRESSED) {
-                throw new PublicKeyException('Invalid uncompressed public key prefix.');
+                throw new CryptoException('Invalid uncompressed public key prefix.');
             }
 
             $x = Utils::binToGmp(substr($data, 1, 32));
             $y = Utils::binToGmp(substr($data, 33, 32));
         } else {
-            throw new PublicKeyException('Invalid public key size.');
+            throw new CryptoException('Invalid public key size.');
         }
 
         return new static($x, $y, $prefix == static::PREFIX_COMPRESSED_ODD);
@@ -202,5 +189,44 @@ class PublicKey
         }
 
         return $prefix . $x . $y;
+    }
+
+    /**
+     * @param string $pubKey
+     * @return bool
+     */
+    static public function isValid(string $pubKey): bool
+    {
+        $length = strlen($pubKey);
+
+        if ($length == static::LENGTH_COMPRESSED && ($pubKey[0] == static::PREFIX_COMPRESSED_ODD || $pubKey[0] == static::PREFIX_COMPRESSED_EVEN)) {
+            return true;
+        }
+
+        if ($length == static::LENGTH_UNCOMPRESSED && $pubKey[0] == static::PREFIX_UNCOMPRESSED) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * @param string $pubKey
+     * @return bool
+     */
+    static public function isFullyValid(string $pubKey): bool
+    {
+        if (!static::isValid($pubKey)) {
+            return false;
+        }
+
+        try {
+            $key = static::parse($pubKey);
+            $key->getEccPublicKey();
+        } catch (\Exception $exception) {
+            return false;
+        }
+
+        return true;
     }
 }

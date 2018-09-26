@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace AndKom\Bitcoin\Blockchain;
+namespace AndKom\Bitcoin\Blockchain\Database;
 
 use AndKom\BCDataStream\Reader;
 
 /**
  * Class FileInfo
- * @package AndKom\Bitcoin\Blockchain
+ * @package AndKom\Bitcoin\Blockchain\Database
  */
 class FileInfo
 {
@@ -53,7 +53,7 @@ class FileInfo
      */
     static public function parse(Reader $reader): self
     {
-        $file = new self;
+        $file = new static;
         $file->blocks = $reader->readVarInt();
         $file->fileSize = $reader->readVarInt();
         $file->undoSize = $reader->readVarInt();

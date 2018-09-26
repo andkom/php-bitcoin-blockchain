@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace AndKom\Bitcoin\Blockchain\Tests;
 
-use AndKom\Bitcoin\Blockchain\PublicKey;
+use AndKom\Bitcoin\Blockchain\Crypto\PublicKey;
 use PHPUnit\Framework\TestCase;
 
 class PublicKeyTest extends TestCase
@@ -81,7 +81,6 @@ class PublicKeyTest extends TestCase
     {
         $key = '040a464653204c756b652d4a72206c656176652074686520626c6f636b636861696e20616c6f6e65210a4f682c20616e6420676f642069736e2774207265616c0a';
 
-        $pk = PublicKey::parse(hex2bin($key));
-        $this->assertFalse($pk->isValid());
+        $this->assertFalse(PublicKey::isFullyValid(hex2bin($key)));
     }
 }

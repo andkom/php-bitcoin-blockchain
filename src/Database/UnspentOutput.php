@@ -2,15 +2,17 @@
 
 declare(strict_types=1);
 
-namespace AndKom\Bitcoin\Blockchain;
+namespace AndKom\Bitcoin\Blockchain\Database;
 
 use AndKom\BCDataStream\Reader;
+use AndKom\Bitcoin\Blockchain\Crypto\PublicKey;
 use AndKom\Bitcoin\Blockchain\Exception\ScriptException;
-use AndKom\Bitcoin\Blockchain\Network\Bitcoin;
+use AndKom\Bitcoin\Blockchain\Script\Opcodes;
+use AndKom\Bitcoin\Blockchain\Script\ScriptPubKey;
 
 /**
  * Class UnspentOutput
- * @package AndKom\Bitcoin\Blockchain
+ * @package AndKom\Bitcoin\Blockchain\Database
  */
 class UnspentOutput
 {
@@ -58,7 +60,7 @@ class UnspentOutput
      */
     static public function parse(Reader $keyReader, Reader $valueReader): self
     {
-        $unspentOutput = new self;
+        $unspentOutput = new static;
         $unspentOutput->hash = $keyReader->read(32);
         $unspentOutput->index = $keyReader->readVarInt();
 
@@ -103,49 +105,53 @@ class UnspentOutput
     }
 
     /**
-     * @param Bitcoin|null $network
-     * @return string
+     * @return ScriptPubKey
      * @throws ScriptException
-     * @throws \Exception
      */
-    public function getAddress(Bitcoin $network = null): string
+    public function decompressScript(): ScriptPubKey
     {
-        $addressSerializer = new AddressSerializer($network);
-
-        // try do decompress script first
         switch ($this->type) {
             case 0:
-                return $addressSerializer->getPayToPubKeyHash($this->script);
+                $script = chr(Opcodes::OP_DUP);
+                $script .= chr(Opcodes::OP_HASH160);
+                $script .= chr(20);
+                $script .= $this->script;
+                $script .= chr(Opcodes::OP_EQUALVERIFY);
+                $script .= chr(Opcodes::OP_CHECKSIG);
+                break;
 
             case 1:
-                return $addressSerializer->getPayToScriptHash($this->script);
+                $script = chr(Opcodes::OP_HASH160);
+                $script .= chr(20);
+                $script .= $this->script;
+                $script .= chr(Opcodes::OP_EQUAL);
+                break;
 
             case 2:
             case 3:
-                $pubKey = chr($this->type) . $this->script;
-                return $addressSerializer->getPayToPubKey($pubKey);
+                $script = chr(33);
+                $script .= chr($this->type);
+                $script .= $this->script;
+                $script .= chr(Opcodes::OP_CHECKSIG);
+                break;
 
             case 4:
             case 5:
-                $pubKey = chr($this->type - 2) . $this->script;
-                $decompressed = PublicKey::parse($pubKey)->decompress()->serialize();
-                return $addressSerializer->getPayToPubKey($decompressed);
-
-            case 22 + static::SPECIAL_SCRIPTS;
-                $addressSerializer->getPayToWitnessPubKeyHash($this->script);
+                $compressed = chr($this->type - 2) . $this->script;
+                try {
+                    $decompressed = PublicKey::parse($compressed)->decompress()->serialize();
+                } catch (\Exception $exception) {
+                    throw new ScriptException('Unable to decompress public key.');
+                }
+                $script = chr(65);
+                $script .= $decompressed;
+                $script .= chr(Opcodes::OP_CHECKSIG);
                 break;
 
-            case 34 + static::SPECIAL_SCRIPTS:
-                $addressSerializer->getPayToWitnessScriptHash($this->script);
-                break;
-
-            // invalid public key prefix
-            case 35 + static::SPECIAL_SCRIPTS:
-            case 67 + static::SPECIAL_SCRIPTS:
-                throw new ScriptException('Unable to decode output address.');
+            default:
+                $script = $this->script;
         }
 
-        // fallback
-        return (new ScriptPubKey($this->script))->getOutputAddress($network);
+        return new ScriptPubKey($script);
     }
 }

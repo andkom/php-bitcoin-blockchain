@@ -2,14 +2,15 @@
 
 declare(strict_types=1);
 
-namespace AndKom\Bitcoin\Blockchain;
+namespace AndKom\Bitcoin\Blockchain\Block;
 
 use AndKom\BCDataStream\Reader;
 use AndKom\BCDataStream\Writer;
+use AndKom\Bitcoin\Blockchain\Transaction\Transaction;
 
 /**
  * Class Block
- * @package AndKom\Bitcoin\Blockchain
+ * @package AndKom\Bitcoin\Blockchain\Block
  */
 class Block
 {
@@ -34,7 +35,7 @@ class Block
      */
     static public function parse(Reader $stream): self
     {
-        $block = new self;
+        $block = new static;
         $block->header = Header::parse($stream);
         $block->transactionsCount = $stream->readCompactSize();
 

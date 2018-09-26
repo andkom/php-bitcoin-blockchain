@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace AndKom\Bitcoin\Blockchain\Tests;
 
-use AndKom\Bitcoin\Blockchain\Opcodes;
-use AndKom\Bitcoin\Blockchain\Script;
+use AndKom\Bitcoin\Blockchain\Script\Opcodes;
+use AndKom\Bitcoin\Blockchain\Script\Script;
 use PHPUnit\Framework\TestCase;
 
 class ScriptTest extends TestCase

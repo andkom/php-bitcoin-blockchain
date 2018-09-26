@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace AndKom\Bitcoin\Blockchain\Exception;
 
 /**
- * Class ScriptException
+ * Class CryptoException
  * @package AndKom\Bitcoin\Blockchain\Exception
  */
-class IOException extends Exception
+class CryptoException extends Exception
 {
 }

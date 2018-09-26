@@ -2,16 +2,19 @@
 
 declare(strict_types=1);
 
-namespace AndKom\Bitcoin\Blockchain;
+namespace AndKom\Bitcoin\Blockchain\Reader;
 
 use AndKom\BCDataStream\Reader;
-use AndKom\Bitcoin\Blockchain\Exception\Exception;
+use AndKom\Bitcoin\Blockchain\Database\BlockIndex;
+use AndKom\Bitcoin\Blockchain\Database\BlockInfo;
+use AndKom\Bitcoin\Blockchain\Database\FileInfo;
+use AndKom\Bitcoin\Blockchain\Exception\DatabaseException;
 
 /**
- * Class IndexReader
- * @package AndKom\Bitcoin\Blockchain
+ * Class BlockIndexReader
+ * @package AndKom\Bitcoin\Blockchain\Reader
  */
-class IndexReader
+class BlockIndexReader
 {
     const PREFIX_BLOCK = 'b';
     const PREFIX_FILE = 'f';
@@ -32,17 +35,17 @@ class IndexReader
     }
 
     /**
-     * @return Index
-     * @throws Exception
+     * @return BlockIndex
+     * @throws DatabaseException
      * @throws \LevelDBException
      */
-    public function read(): Index
+    public function read(): BlockIndex
     {
         if (!class_exists('\LevelDB')) {
-            throw new Exception('Extension leveldb is not installed.');
+            throw new DatabaseException('Extension leveldb is not installed.');
         }
 
-        $index = new Index();
+        $index = new BlockIndex();
 
         $db = new \LevelDB($this->blockIndexDir);
 

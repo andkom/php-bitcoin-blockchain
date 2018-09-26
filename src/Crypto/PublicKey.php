@@ -178,14 +178,14 @@ class PublicKey
      */
     public function serialize(): string
     {
-        $x = Utils::gmpToBin($this->x);
+        $x = Utils::gmpToBin($this->x, 32);
 
         if ($this->isCompressed()) {
             $prefix = $this->wasOdd ? static::PREFIX_COMPRESSED_ODD : static::PREFIX_COMPRESSED_EVEN;
             $y = '';
         } else {
             $prefix = static::PREFIX_UNCOMPRESSED;
-            $y = Utils::gmpToBin($this->y);
+            $y = Utils::gmpToBin($this->y, 32);
         }
 
         return $prefix . $x . $y;

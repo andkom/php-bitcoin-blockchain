@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace AndKom\Bitcoin\Blockchain\Script;
 
 use AndKom\BCDataStream\Reader;
-use AndKom\Bitcoin\Blockchain\Exception\ScriptException;
+use AndKom\Bitcoin\Blockchain\Exceptions\ScriptException;
 
 /**
  * Class Script

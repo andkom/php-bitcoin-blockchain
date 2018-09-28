@@ -7,7 +7,7 @@ namespace AndKom\Bitcoin\Blockchain\Reader;
 use AndKom\Bitcoin\Blockchain\Block\Block;
 use AndKom\Bitcoin\Blockchain\Database\BlockIndex;
 use AndKom\Bitcoin\Blockchain\Database\BlockInfo;
-use AndKom\Bitcoin\Blockchain\Exception\DatabaseException;
+use AndKom\Bitcoin\Blockchain\Exceptions\DatabaseException;
 
 /**
  * Class DatabaseReader

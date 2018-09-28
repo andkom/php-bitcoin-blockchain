@@ -6,7 +6,7 @@ namespace AndKom\Bitcoin\Blockchain\Database;
 
 use AndKom\BCDataStream\Reader;
 use AndKom\Bitcoin\Blockchain\Block\Header;
-use AndKom\Bitcoin\Blockchain\Exception\DatabaseException;
+use AndKom\Bitcoin\Blockchain\Exceptions\DatabaseException;
 
 /**
  * Class BlockInfo

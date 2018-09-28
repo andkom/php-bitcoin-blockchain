@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace AndKom\Bitcoin\Blockchain\Database;
 
-use AndKom\Bitcoin\Blockchain\Exception\DatabaseException;
+use AndKom\Bitcoin\Blockchain\Exceptions\DatabaseException;
 
 /**
  * Class BlockIndex

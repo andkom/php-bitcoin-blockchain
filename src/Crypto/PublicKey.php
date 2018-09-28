@@ -2,7 +2,7 @@
 
 namespace AndKom\Bitcoin\Blockchain\Crypto;
 
-use AndKom\Bitcoin\Blockchain\Exception\CryptoException;
+use AndKom\Bitcoin\Blockchain\Exceptions\PublicKeyException;
 use AndKom\Bitcoin\Blockchain\Utils;
 use Mdanter\Ecc\EccFactory;
 
@@ -57,12 +57,12 @@ class PublicKey
 
     /**
      * @return \GMP
-     * @throws CryptoException
+     * @throws PublicKeyException
      */
     public function getY(): \GMP
     {
         if ($this->isCompressed()) {
-            throw new CryptoException("Compressed public key doesn't have Y coordinate.");
+            throw new PublicKeyException("Compressed public key doesn't have Y coordinate.");
         }
 
         return $this->y;
@@ -86,12 +86,12 @@ class PublicKey
 
     /**
      * @return PublicKey
-     * @throws CryptoException
+     * @throws PublicKeyException
      */
     public function compress(): self
     {
         if ($this->isCompressed()) {
-            throw new CryptoException('Public key is already compressed.');
+            throw new PublicKeyException('Public key is already compressed.');
         }
 
         $wasOdd = gmp_cmp(
@@ -104,12 +104,12 @@ class PublicKey
 
     /**
      * @return PublicKey
-     * @throws CryptoException
+     * @throws PublicKeyException
      */
     public function decompress(): self
     {
         if (!$this->isCompressed()) {
-            throw new CryptoException('Public key is already decompressed.');
+            throw new PublicKeyException('Public key is already decompressed.');
         }
 
         $curve = EccFactory::getSecgCurves()->generator256k1()->getCurve();
@@ -120,7 +120,7 @@ class PublicKey
 
     /**
      * @return \Mdanter\Ecc\Crypto\Key\PublicKey
-     * @throws CryptoException
+     * @throws PublicKeyException
      */
     public function getEccPublicKey(): \Mdanter\Ecc\Crypto\Key\PublicKey
     {
@@ -142,7 +142,7 @@ class PublicKey
     /**
      * @param string $data
      * @return PublicKey
-     * @throws CryptoException
+     * @throws PublicKeyException
      */
     static public function parse(string $data): self
     {
@@ -152,7 +152,7 @@ class PublicKey
             $prefix = $data[0];
 
             if ($prefix != static::PREFIX_COMPRESSED_ODD && $prefix != static::PREFIX_COMPRESSED_EVEN) {
-                throw new CryptoException('Invalid compressed public key prefix.');
+                throw new PublicKeyException('Invalid compressed public key prefix.');
             }
 
             $x = Utils::binToGmp(substr($data, 1, 32));
@@ -161,13 +161,13 @@ class PublicKey
             $prefix = $data[0];
 
             if ($prefix != static::PREFIX_UNCOMPRESSED) {
-                throw new CryptoException('Invalid uncompressed public key prefix.');
+                throw new PublicKeyException('Invalid uncompressed public key prefix.');
             }
 
             $x = Utils::binToGmp(substr($data, 1, 32));
             $y = Utils::binToGmp(substr($data, 33, 32));
         } else {
-            throw new CryptoException('Invalid public key size.');
+            throw new PublicKeyException('Invalid public key size.');
         }
 
         return new static($x, $y, $prefix == static::PREFIX_COMPRESSED_ODD);

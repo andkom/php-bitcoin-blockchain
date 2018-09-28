@@ -6,7 +6,7 @@ namespace AndKom\Bitcoin\Blockchain\Database;
 
 use AndKom\BCDataStream\Reader;
 use AndKom\Bitcoin\Blockchain\Crypto\PublicKey;
-use AndKom\Bitcoin\Blockchain\Exception\ScriptException;
+use AndKom\Bitcoin\Blockchain\Exceptions\OutputDecodeException;
 use AndKom\Bitcoin\Blockchain\Script\Opcodes;
 use AndKom\Bitcoin\Blockchain\Script\ScriptPubKey;
 
@@ -16,8 +16,6 @@ use AndKom\Bitcoin\Blockchain\Script\ScriptPubKey;
  */
 class UnspentOutput
 {
-    const SPECIAL_SCRIPTS = 6;
-
     /**
      * @var string
      */
@@ -105,8 +103,24 @@ class UnspentOutput
     }
 
     /**
+     * @param string $compressed
+     * @return string
+     * @throws OutputDecodeException
+     */
+    static public function decompressPubKey(string $compressed): string
+    {
+        try {
+            $decompressed = PublicKey::parse($compressed)->decompress()->serialize();
+        } catch (\Exception $exception) {
+            throw new OutputDecodeException('Unable to decompress public key.', 0, $exception);
+        }
+
+        return $decompressed;
+    }
+
+    /**
      * @return ScriptPubKey
-     * @throws ScriptException
+     * @throws OutputDecodeException
      */
     public function decompressScript(): ScriptPubKey
     {
@@ -137,14 +151,8 @@ class UnspentOutput
 
             case 4:
             case 5:
-                $compressed = chr($this->type - 2) . $this->script;
-                try {
-                    $decompressed = PublicKey::parse($compressed)->decompress()->serialize();
-                } catch (\Exception $exception) {
-                    throw new ScriptException('Unable to decompress public key.', 0, $exception);
-                }
                 $script = chr(65);
-                $script .= $decompressed;
+                $script .= static::decompressPubKey(chr($this->type - 2) . $this->script);
                 $script .= chr(Opcodes::OP_CHECKSIG);
                 break;
 

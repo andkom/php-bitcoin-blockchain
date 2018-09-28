@@ -5,7 +5,8 @@ declare(strict_types=1);
 namespace AndKom\Bitcoin\Blockchain\Script;
 
 use AndKom\Bitcoin\Blockchain\Crypto\PublicKey;
-use AndKom\Bitcoin\Blockchain\Exception\ScriptException;
+use AndKom\Bitcoin\Blockchain\Exceptions\AddressSerializeException;
+use AndKom\Bitcoin\Blockchain\Exceptions\OutputDecodeException;
 use AndKom\Bitcoin\Blockchain\Network\NetworkInterface;
 use AndKom\Bitcoin\Blockchain\Serializer\AddressSerializer;
 
@@ -158,11 +159,10 @@ class ScriptPubKey extends Script
     }
 
     /**
-     * @param NetworkInterface $network
+     * @param NetworkInterface|null $network
      * @return string
-     * @throws ScriptException
-     * @throws \Exception
-     * @throws \BitWasp\Bech32\Exception\Bech32Exception
+     * @throws OutputDecodeException
+     * @throws AddressSerializeException
      */
     public function getOutputAddress(NetworkInterface $network = null): string
     {
@@ -184,7 +184,7 @@ class ScriptPubKey extends Script
             }
 
             if (!PublicKey::isFullyValid($pubKey)) {
-                throw new ScriptException('Unable to decode output address (invalid public key).');
+                throw new OutputDecodeException('Unable to decode output address (invalid public key).');
             }
 
             return $addressSerializer->getPayToPubKey($pubKey);
@@ -199,21 +199,21 @@ class ScriptPubKey extends Script
         }
 
         if ($this->isMultisig()) {
-            throw new ScriptException('Unable to decode output address (multisig).');
+            throw new OutputDecodeException('Unable to decode output address (multisig).');
         }
 
         if ($this->isReturn()) {
-            throw new ScriptException('Unable to decode output address (OP_RETURN).');
+            throw new OutputDecodeException('Unable to decode output address (OP_RETURN).');
         }
 
         if ($this->isEmpty()) {
-            throw new ScriptException('Unable to decode output address (empty).');
+            throw new OutputDecodeException('Unable to decode output address (empty).');
         }
 
         if ($this->isPayToPubKeyHashAlt()) {
             return $addressSerializer->getPayToPubKeyHash(substr($this->data, 4, 20));
         }
 
-        throw new ScriptException('Unable to decode output address.');
+        throw new OutputDecodeException('Unable to decode output address.');
     }
 }

@@ -6,7 +6,7 @@ namespace AndKom\Bitcoin\Blockchain\Reader;
 
 use AndKom\BCDataStream\Reader;
 use AndKom\Bitcoin\Blockchain\Database\UnspentOutput;
-use AndKom\Bitcoin\Blockchain\Exception\DatabaseException;
+use AndKom\Bitcoin\Blockchain\Exceptions\DatabaseException;
 use AndKom\Bitcoin\Blockchain\Utils;
 
 /**

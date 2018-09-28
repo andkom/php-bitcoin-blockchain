@@ -8,7 +8,7 @@ use AndKom\BCDataStream\Reader;
 use AndKom\Bitcoin\Blockchain\Database\BlockIndex;
 use AndKom\Bitcoin\Blockchain\Database\BlockInfo;
 use AndKom\Bitcoin\Blockchain\Database\FileInfo;
-use AndKom\Bitcoin\Blockchain\Exception\DatabaseException;
+use AndKom\Bitcoin\Blockchain\Exceptions\DatabaseException;
 
 /**
  * Class BlockIndexReader

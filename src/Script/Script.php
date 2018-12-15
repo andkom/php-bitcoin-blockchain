@@ -79,8 +79,8 @@ class Script
     }
 
     /**
-     * @return array
-     * @throws \Exception
+     * @return Operation[]
+     * @throws ScriptException
      */
     public function parse(): array
     {
@@ -103,7 +103,7 @@ class Script
 
                 if ($code == Opcodes::OP_0) {
                     $data = '';
-                } elseif ($code >= 0x01 && $code <= 0x4b) {
+                } elseif ($code > Opcodes::OP_0 && $code < Opcodes::OP_PUSHDATA1) {
                     $data = $stream->read($code);
                     $size = $code;
                 } elseif ($code >= Opcodes::OP_PUSHDATA1 && $code <= Opcodes::OP_PUSHDATA4) {

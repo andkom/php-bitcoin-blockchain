@@ -44,38 +44,56 @@ class ChainstateReader
     }
 
     /**
-     * @return \LevelDB
+     * @return ChainstateReader
+     * @throws DatabaseException
      */
-    protected function openDb(): \LevelDB
+    protected function openDb(): self
     {
-        if ($this->db) {
-            return $this->db;
+        if (!class_exists('\LevelDB')) {
+            throw new DatabaseException('Extension leveldb is not installed.');
         }
 
-        return $this->db = new \LevelDB($this->chainstateDir);
+        $this->db = new \LevelDB($this->chainstateDir);
+
+        return $this;
     }
 
     /**
      * @return ChainstateReader
+     * @throws DatabaseException
      */
-    protected function closeDb(): self
+    protected function assertDbOpened(): self
     {
-        if ($this->db) {
-            $this->db->close();
-            $this->db = null;
+        if (!$this->db) {
+            throw new DatabaseException('Database is not opened.');
         }
 
         return $this;
     }
 
     /**
-     * @param \LevelDB $db
-     * @return string
-     * @throws \LevelDBException
+     * @return ChainstateReader
+     * @throws DatabaseException
      */
-    protected function getObfuscateKeyFromDb(\LevelDB $db): string
+    protected function closeDb(): self
     {
-        $obfuscateKey = $db->get(static::KEY_OBFUSCATE_KEY);
+        $this->assertDbOpened();
+
+        $this->db->close();
+        $this->db = null;
+
+        return $this;
+    }
+
+    /**
+     * @return string
+     * @throws DatabaseException
+     */
+    protected function readObfuscateKey(): string
+    {
+        $this->assertDbOpened();
+
+        $obfuscateKey = $this->db->get(static::KEY_OBFUSCATE_KEY);
 
         // first byte is key size
         $obfuscateKey = substr($obfuscateKey, 1);
@@ -84,15 +102,14 @@ class ChainstateReader
     }
 
     /**
-     * @param \LevelDB $db
      * @param string $value
      * @return string
-     * @throws \LevelDBException
+     * @throws DatabaseException
      */
-    protected function deobfuscateValue(\LevelDB $db, string $value): string
+    protected function deobfuscateValue(string $value): string
     {
         if (!$this->obfuscateKey) {
-            $this->obfuscateKey = $this->getObfuscateKeyFromDb($db);
+            $this->obfuscateKey = $this->readObfuscateKey();
         }
 
         return $this->obfuscateKey ? Utils::xor($this->obfuscateKey, $value) : $value;
@@ -101,14 +118,13 @@ class ChainstateReader
     /**
      * @return string
      * @throws DatabaseException
-     * @throws \LevelDBException
      */
     public function getBestBlock(): string
     {
-        $db = $this->openDb();
+        $this->openDb();
 
-        $bestBlock = $db->get(static::KEY_BEST_BLOCK);
-        $bestBlock = $this->deobfuscateValue($db, $bestBlock);
+        $bestBlock = $this->db->get(static::KEY_BEST_BLOCK);
+        $bestBlock = $this->deobfuscateValue($bestBlock);
 
         $this->closeDb();
 
@@ -122,19 +138,14 @@ class ChainstateReader
     /**
      * @return string
      * @throws DatabaseException
-     * @throws \LevelDBException
      */
     public function getObfuscateKey(): string
     {
-        $db = $this->openDb();
+        $this->openDb();
 
-        $obfuscateKey = $this->getObfuscateKeyFromDb($db);
+        $obfuscateKey = $this->readObfuscateKey();
 
         $this->closeDb();
-
-        if (!$obfuscateKey) {
-            throw new DatabaseException('Unable to get obfuscate key.');
-        }
 
         return $obfuscateKey;
     }
@@ -142,17 +153,12 @@ class ChainstateReader
     /**
      * @return \Generator
      * @throws DatabaseException
-     * @throws \LevelDBException
      */
     public function read(): \Generator
     {
-        if (!class_exists('\LevelDB')) {
-            throw new DatabaseException('Extension leveldb is not installed.');
-        }
+        $this->openDb();
 
-        $db = new \LevelDB($this->chainstateDir);
-
-        foreach ($db->getIterator() as $key => $value) {
+        foreach ($this->db->getIterator() as $key => $value) {
             $key = new Reader($key);
             $prefix = $key->read(1);
 
@@ -160,7 +166,7 @@ class ChainstateReader
                 continue;
             }
 
-            $value = $this->deobfuscateValue($db, $value);
+            $value = $this->deobfuscateValue($value);
 
             yield UnspentOutput::parse($key, new Reader($value));
         }

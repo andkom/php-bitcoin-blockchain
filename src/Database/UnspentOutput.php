@@ -200,7 +200,6 @@ class UnspentOutput
                 return $addressSerializer->getPayToWitnessScriptHash(substr($this->script, 2, 32));
         }
 
-        throw new OutputDecodeException(sprintf('Unable to decode output (%d:%s).',
-            $this->type, bin2hex($this->script)));
+        throw new OutputDecodeException('Unable to decode output (unknown script type).');
     }
 }

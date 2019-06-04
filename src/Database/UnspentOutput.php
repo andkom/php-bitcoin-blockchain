@@ -6,9 +6,12 @@ namespace AndKom\Bitcoin\Blockchain\Database;
 
 use AndKom\BCDataStream\Reader;
 use AndKom\Bitcoin\Blockchain\Crypto\PublicKey;
+use AndKom\Bitcoin\Blockchain\Exceptions\AddressSerializeException;
 use AndKom\Bitcoin\Blockchain\Exceptions\OutputDecodeException;
+use AndKom\Bitcoin\Blockchain\Network\NetworkInterface;
 use AndKom\Bitcoin\Blockchain\Script\Opcodes;
 use AndKom\Bitcoin\Blockchain\Script\ScriptPubKey;
+use AndKom\Bitcoin\Blockchain\Serializer\AddressSerializer;
 
 /**
  * Class UnspentOutput
@@ -161,5 +164,43 @@ class UnspentOutput
         }
 
         return new ScriptPubKey($script);
+    }
+
+    /**
+     * @param NetworkInterface|null $network
+     * @return string
+     * @throws OutputDecodeException
+     * @throws AddressSerializeException
+     */
+    public function getAddress(NetworkInterface $network = null): string
+    {
+        $addressSerializer = new AddressSerializer($network);
+
+        switch ($this->type) {
+            case 0:
+                return $addressSerializer->getPayToPubKeyHash($this->script);
+
+            case 1:
+                return $addressSerializer->getPayToScriptHash($this->script);
+
+            case 2:
+            case 3:
+                $pubKey = chr($this->type) . $this->script;
+                return $addressSerializer->getPayToPubKey($pubKey);
+
+            case 4:
+            case 5:
+                $pubKey = static::decompressPubKey(chr($this->type - 2) . $this->script);
+                return $addressSerializer->getPayToPubKey($pubKey);
+
+            case 22:
+                return $addressSerializer->getPayToWitnessPubKeyHash(substr($this->script, 2, 20));
+
+            case 34:
+                return $addressSerializer->getPayToWitnessScriptHash(substr($this->script, 2, 32));
+        }
+
+        throw new OutputDecodeException(sprintf('Unable to decode output (%d:%s).',
+            $this->type, bin2hex($this->script)));
     }
 }

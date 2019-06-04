@@ -84,22 +84,6 @@ class ScriptPubKey extends Script
     }
 
     /**
-     * Handle output of TX 059787f0673ab2c00b8f2f9810fdd14b0cd6a3034cc44dc30de124f606d3670a
-     * ScriptPubKey: OP_DUP OP_HASH160 OP_PUSHDATA1 [pubkey hash] OP_EQUALVERIFY OP_CHECKSIG
-     * @return bool
-     */
-    public function isPayToPubKeyHashAlt(): bool
-    {
-        return $this->size == 26 &&
-            ord($this->data[0]) == Opcodes::OP_DUP &&
-            ord($this->data[1]) == Opcodes::OP_HASH160 &&
-            ord($this->data[2]) == Opcodes::OP_PUSHDATA1 &&
-            ord($this->data[3]) == 20 &&
-            ord($this->data[-2]) == Opcodes::OP_EQUALVERIFY &&
-            ord($this->data[-1]) == Opcodes::OP_CHECKSIG;
-    }
-
-    /**
      * ScriptPubKey: OP_HASH160 PUSHDATA(20) [script hash] OP_EQUAL
      * @return bool
      */
@@ -166,15 +150,19 @@ class ScriptPubKey extends Script
      */
     public function getOutputAddress(NetworkInterface $network = null): string
     {
+        if ($this->isMultisig()) {
+            throw new OutputDecodeException('Unable to decode output address (multisig).');
+        }
+
+        if ($this->isReturn()) {
+            throw new OutputDecodeException('Unable to decode output address (OP_RETURN).');
+        }
+
+        if ($this->isEmpty()) {
+            throw new OutputDecodeException('Unable to decode output address (empty).');
+        }
+
         $addressSerializer = new AddressSerializer($network);
-
-        if ($this->isPayToPubKeyHash()) {
-            return $addressSerializer->getPayToPubKeyHash(substr($this->data, 3, 20));
-        }
-
-        if ($this->isPayToScriptHash()) {
-            return $addressSerializer->getPayToScriptHash(substr($this->data, 2, 20));
-        }
 
         if ($this->isPayToPubKey()) {
             if ($this->size == 35) {
@@ -190,28 +178,20 @@ class ScriptPubKey extends Script
             return $addressSerializer->getPayToPubKey($pubKey);
         }
 
+        if ($this->isPayToPubKeyHash()) {
+            return $addressSerializer->getPayToPubKeyHash(substr($this->data, 3, 20));
+        }
+
+        if ($this->isPayToScriptHash()) {
+            return $addressSerializer->getPayToScriptHash(substr($this->data, 2, 20));
+        }
+
         if ($this->isPayToWitnessPubKeyHash()) {
             return $addressSerializer->getPayToWitnessPubKeyHash(substr($this->data, 2, 20));
         }
 
         if ($this->isPayToWitnessScriptHash()) {
             return $addressSerializer->getPayToWitnessScriptHash(substr($this->data, 2, 32));
-        }
-
-        if ($this->isMultisig()) {
-            throw new OutputDecodeException('Unable to decode output address (multisig).');
-        }
-
-        if ($this->isReturn()) {
-            throw new OutputDecodeException('Unable to decode output address (OP_RETURN).');
-        }
-
-        if ($this->isEmpty()) {
-            throw new OutputDecodeException('Unable to decode output address (empty).');
-        }
-
-        if ($this->isPayToPubKeyHashAlt()) {
-            return $addressSerializer->getPayToPubKeyHash(substr($this->data, 4, 20));
         }
 
         throw new OutputDecodeException('Unable to decode output address.');

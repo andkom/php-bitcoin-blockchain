@@ -61,21 +61,6 @@ class ScriptPubKeyTest extends TestCase
         $this->assertEquals($script->getOutputAddress(), '1EHNa6Q4Jz2uvNExL497mE43ikXhwF6kZm');
     }
 
-    public function testParseP2PKHAlt()
-    {
-        $hex = '76'; // OP_DUP
-        $hex .= 'a9'; // OP_HASH160
-        $hex .= '4c'; // OP_PUSHDATA1
-        $hex .= '14'; // 20
-        $hex .= 'cd4967766b612eb44345fb00f316d890cd3d508688'; // pubkey hash
-        $hex .= 'ac'; // OP_CHECKSIG
-
-        $script = new ScriptPubKey(hex2bin($hex));
-
-        $this->assertTrue($script->isPayToPubKeyHashAlt());
-        $this->assertEquals($script->getOutputAddress(), '1KiTTY2sRjPRdobHdNTzBVv7rBiNG1tX2E');
-    }
-
     // OP_HASH160 [hash] OP_EQUAL
     public function testParseP2SH()
     {

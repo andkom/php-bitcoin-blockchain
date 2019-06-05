@@ -72,7 +72,7 @@ class UnspentOutputTest extends TestCase
     public function testPayToWitnessPubKeyHash()
     {
         $uo = new UnspentOutput();
-        $uo->type = 22;
+        $uo->type = 28;
         $uo->script = hex2bin('0014536523b38a207338740797cd03c3312e81408d53');
 
         $this->assertEquals($uo->getAddress(), 'bc1q2djj8vu2ypensaq8jlxs8se396q5pr2n3sa2wn');
@@ -82,7 +82,7 @@ class UnspentOutputTest extends TestCase
     public function testPayToWitnessScriptHash()
     {
         $uo = new UnspentOutput();
-        $uo->type = 34;
+        $uo->type = 40;
         $uo->script = hex2bin('0020701a8d401c84fb13e6baf169d59684e17abd9fa216c8cc5b9fc63d622ff8c58d');
 
         $this->assertEquals($uo->getAddress(), 'bc1qwqdg6squsna38e46795at95yu9atm8azzmyvckulcc7kytlcckxswvvzej');

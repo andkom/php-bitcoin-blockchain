@@ -5,17 +5,17 @@ declare(strict_types=1);
 namespace AndKom\Bitcoin\Blockchain\Network;
 
 /**
- * Class Bitcoin
+ * Class Litecoin
  * @package AndKom\Bitcoin\Blockchain\Network
  */
-class Bitcoin implements NetworkInterface, SegwitInterface
+class Litecoin implements NetworkInterface, SegwitInterface
 {
     /**
      * @return int
      */
     public function getPayToPubKeyPrefix(): int
     {
-        return 0x00;
+        return 0x30;
     }
 
     /**
@@ -23,7 +23,7 @@ class Bitcoin implements NetworkInterface, SegwitInterface
      */
     public function getPayToPubKeyHashPrefix(): int
     {
-        return 0x00;
+        return 0x30;
     }
 
     /**
@@ -31,7 +31,7 @@ class Bitcoin implements NetworkInterface, SegwitInterface
      */
     public function getPayToScriptHashPrefix(): int
     {
-        return 0x05;
+        return 0x32;
     }
 
     /**
@@ -39,6 +39,6 @@ class Bitcoin implements NetworkInterface, SegwitInterface
      */
     public function getBech32HumanReadablePart(): string
     {
-        return 'bc';
+        return 'ltc';
     }
 }

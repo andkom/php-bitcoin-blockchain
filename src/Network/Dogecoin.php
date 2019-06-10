@@ -5,17 +5,17 @@ declare(strict_types=1);
 namespace AndKom\Bitcoin\Blockchain\Network;
 
 /**
- * Class Bitcoin
+ * Class Dogecoin
  * @package AndKom\Bitcoin\Blockchain\Network
  */
-class Bitcoin implements NetworkInterface, SegwitInterface
+class Dogecoin implements NetworkInterface
 {
     /**
      * @return int
      */
     public function getPayToPubKeyPrefix(): int
     {
-        return 0x00;
+        return 0x1e;
     }
 
     /**
@@ -23,7 +23,7 @@ class Bitcoin implements NetworkInterface, SegwitInterface
      */
     public function getPayToPubKeyHashPrefix(): int
     {
-        return 0x00;
+        return 0x1e;
     }
 
     /**
@@ -31,14 +31,6 @@ class Bitcoin implements NetworkInterface, SegwitInterface
      */
     public function getPayToScriptHashPrefix(): int
     {
-        return 0x05;
-    }
-
-    /**
-     * @return string
-     */
-    public function getBech32HumanReadablePart(): string
-    {
-        return 'bc';
+        return 0x16;
     }
 }

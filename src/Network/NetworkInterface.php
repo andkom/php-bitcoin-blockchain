@@ -24,9 +24,4 @@ interface NetworkInterface
      * @return int
      */
     public function getPayToScriptHashPrefix(): int;
-
-    /**
-     * @return string
-     */
-    public function getBech32HumanReadablePart(): string;
 }

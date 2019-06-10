@@ -8,6 +8,7 @@ use AndKom\Bitcoin\Blockchain\Crypto\PublicKey;
 use AndKom\Bitcoin\Blockchain\Exceptions\AddressSerializeException;
 use AndKom\Bitcoin\Blockchain\Network\NetworkFactory;
 use AndKom\Bitcoin\Blockchain\Network\NetworkInterface;
+use AndKom\Bitcoin\Blockchain\Network\SegwitInterface;
 use AndKom\Bitcoin\Blockchain\Utils;
 use function BitWasp\Bech32\encodeSegwit;
 use StephenHill\Base58;
@@ -73,6 +74,10 @@ class AddressSerializer
 
         if ($length != 20 && $length != 32) {
             throw new AddressSerializeException('Invalid hash size.');
+        }
+
+        if (!($this->network instanceof SegwitInterface)) {
+            throw new AddressSerializeException('SegWit address is not supported.');
         }
 
         try {

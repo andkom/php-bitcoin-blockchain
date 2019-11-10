@@ -103,13 +103,13 @@ class Transaction
             $stream->write("\x00\x01");
         }
 
-        $stream->writeVarInt($this->inCount);
+        $stream->writeCompactSize($this->inCount);
 
         foreach ($this->inputs as $in) {
             $in->serialize($stream);
         }
 
-        $stream->writeVarInt($this->outCount);
+        $stream->writeCompactSize($this->outCount);
 
         foreach ($this->outputs as $out) {
             $out->serialize($stream);
@@ -117,7 +117,7 @@ class Transaction
 
         if ($this->isSegwit && $segWit) {
             foreach ($this->inputs as $input) {
-                $stream->writeVarInt(count($input->witnesses));
+                $stream->writeCompactSize(count($input->witnesses));
 
                 foreach ($input->witnesses as $witness) {
                     $stream->writeString($witness);

@@ -80,7 +80,7 @@ class ScriptPubKeyTest extends TestCase
     {
         $hex = '51'; // 1
         $hex .= '21'; // 33
-        $hex .= '035b219535a5e9238bccc25c71ce4fddf024f5d9b452887225d23057b870d444b9'; // pubkey
+        $hex .= '0279be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798'; // pubkey
         $hex .= '41'; // 65
         $hex .= '0479be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798483ada7726a3c4655da4fbfc0e1108a8fd17b448a68554199c47d08ffb10d4b8'; // pubkey
         $hex .= '52'; // 2
@@ -88,7 +88,8 @@ class ScriptPubKeyTest extends TestCase
 
         $script = new ScriptPubKey(hex2bin($hex));
 
-        $this->assertTrue($script->isMultisig());
+        $this->assertTrue($script->isPayToMultisig());
+        $this->assertEquals($script->getOutputAddress(), '1:2:1BgGZ9tcN4rm9KBzDn7KprQz87SZ26SAMH,1EHNa6Q4Jz2uvNExL497mE43ikXhwF6kZm');
     }
 
     public function testParseMultisig2()
@@ -103,7 +104,7 @@ class ScriptPubKeyTest extends TestCase
 
         $script = new ScriptPubKey(hex2bin($hex));
 
-        $this->assertFalse($script->isMultisig());
+        $this->assertFalse($script->isPayToMultisig());
     }
 
     public function testParseMultisig3()
@@ -116,7 +117,7 @@ class ScriptPubKeyTest extends TestCase
 
         $script = new ScriptPubKey(hex2bin($hex));
 
-        $this->assertFalse($script->isMultisig());
+        $this->assertFalse($script->isPayToMultisig());
     }
 
     // [segwit ver] [pubkey hash]

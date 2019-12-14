@@ -97,10 +97,6 @@ class AddressSerializer
      */
     public function pubKeyToAddress(string $pubKey, int $prefix): string
     {
-        if (!PublicKey::isValid($pubKey)) {
-            throw new AddressSerializeException('Invalid public key format.');
-        }
-
         return $this->hashToAddress(Utils::hash160($pubKey, true), $prefix);
     }
 
@@ -112,6 +108,18 @@ class AddressSerializer
     public function getPayToPubKey(string $pubKey): string
     {
         return $this->pubKeyToAddress($pubKey, $this->network->getPayToPubKeyPrefix());
+    }
+
+    /**
+     * @param int $m
+     * @param array $pubKeys
+     * @return string
+     */
+    public function getPayToMultisig(int $m, array $pubKeys): string
+    {
+        return sprintf('%d:%d:%s', $m, count($pubKeys), implode(',', array_map(function ($pubKey) {
+            return $this->getPayToPubKey($pubKey);
+        }, $pubKeys)));
     }
 
     /**

@@ -99,7 +99,7 @@ class ScriptPubKey extends Script
      * ScriptPubKey: [num sigs] [...pub keys..] [num pub keys] OP_CHECKMULTISIG
      * @return bool
      */
-    public function isMultisig(): bool
+    public function isPayToMultisig(): bool
     {
         // check pattern
         if (!($this->size >= 37 &&
@@ -150,10 +150,6 @@ class ScriptPubKey extends Script
      */
     public function getOutputAddress(NetworkInterface $network = null): string
     {
-        if ($this->isMultisig()) {
-            throw new OutputDecodeException('Unable to decode output address (multisig).');
-        }
-
         if ($this->isReturn()) {
             throw new OutputDecodeException('Unable to decode output address (OP_RETURN).');
         }
@@ -171,11 +167,20 @@ class ScriptPubKey extends Script
                 $pubKey = substr($this->data, 1, 65);
             }
 
-            if (!PublicKey::isFullyValid($pubKey)) {
-                throw new OutputDecodeException('Unable to decode output address (invalid public key).');
+            return $addressSerializer->getPayToPubKey($pubKey);
+        }
+
+        if ($this->isPayToMultisig()) {
+            $m = ord($this->data[0]) - Opcodes::OP_1 + 1;
+            $pubKeys = [];
+
+            for ($i = 1; $i < $this->size - 2;) {
+                $size = ord($this->data[$i]);
+                $pubKeys[] = substr($this->data, $i + 1, $size);;
+                $i += $size + 1;
             }
 
-            return $addressSerializer->getPayToPubKey($pubKey);
+            return $addressSerializer->getPayToMultisig($m, $pubKeys);
         }
 
         if ($this->isPayToPubKeyHash()) {
